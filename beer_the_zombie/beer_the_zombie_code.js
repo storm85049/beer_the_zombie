@@ -3,7 +3,8 @@
 	canvas.width = 	920;
 	canvas.height = 530;
 	
-	var gravity = 0.6; 
+	
+	var gravity = 0.6; 		
 	var friction = 0.8;
 	var shoot = false;
 
@@ -55,24 +56,23 @@
 	}
 	var camera = {
 		x:0,
-		y:0,
-		
-		camShift:3
+		y:0,	
+		camShift:3		//Fixer Wert, der den Background verschiebt, wenn man aus der "freien Bewegungszone herausgeht"
 
 	}
 	var bottle = {
 		x:0,
 		y:0,
-		bottleVelX:10,
-		grav:3
+		bottleVelX:10,	//Bestimmmt, wie weit die Flasche geworfen wird
+		grav:3			//Bestimmmt, wie schwer die Flasche ist. 
 	}
 		var player = {
-		speed:3,//movement in pixels
-		x:100,
+		speed:3,		//Maximale Geschwindigkeit des Players 
+		x:100,			
 		y:canvas.height/2,
 		jumping:false,
-		velX:0,
-		velY:0,
+		velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verändert
+		velY:0,			//GLeiches wie für velX
 		dead:false
 
 	}
@@ -90,14 +90,16 @@
 		if(playerReady){
 			ctx.drawImage(playerImage,player.x,player.y);
 		}
-		if(bottleReady && shoot){
+		if(bottleReady && shoot ){
 			ctx.drawImage(bottleImage, bottle.x, bottle.y);
 		}
-		/*ctx.beginPath();
-		ctx.globalAlpha = 0.2;
+		
+		//Malt die Box, in der sich der Spieler frei bewegen kann.
+		ctx.beginPath();
+		ctx.globalAlpha = 0.4;
 		ctx.fillRect(100,canvas.height/2,250,playerImage.height);
 		ctx.globalAlpha = 1.0;
-		*/
+		
 		
 
 	}
@@ -119,7 +121,7 @@
 		if(68 in keysDown && player.velX < player.speed){		//KeyRIGHT
 			player.velX++;
 		}
-		if (87 in keysDown && !player.jumping){
+		if (87 in keysDown && !player.jumping){					//KeyUp
 			player.jumping = true; 
 			player.velY = -player.speed*5;
 		}
@@ -130,22 +132,22 @@
 		
 		}
 		if (!shoot){
-			bottle.x = player.x;
-			bottle.y = player.y;		
+			bottle.x = player.x;			//Flasche hat stets die gleichen x und y Werte wie der Spieler(wenn nicht geschossen wird),
+			bottle.y = player.y;			// wird jedoch erst in der draw Funktion gemalt, wenn shoot == true ist 
 		}
 		else{
-			bottle.x+=bottle.bottleVelX; 
-			bottle.y-= bottle.grav;
+			bottle.x+=bottle.bottleVelX; 	//wenn shoot == true, dann verändert die Flasche ihre x und y Werte, mit normalen physikalischen
+			bottle.y-= bottle.grav;			//GLeichungen
 			bottle.grav-=0.2 ;
 		}
 		if(!player.dead){
-			player.velX*=friction;
+			player.velX*=friction;			
 			player.velY += gravity;
 			player.y += player.velY;
 			player.x += player.velX;
 			
 			
-			if(player.x < 100){
+			if(player.x < 100 ){
 				player.x  = 100;
 				player.velX = 0;
 				camera.x += camera.camShift;
@@ -158,10 +160,13 @@
 				camera.x -= camera.camShift;
 				zombie.x -= camera.camShift;
 			}
-		}
-		//camera.x -= camera.camVelX;
-		//camVelX = player.velX;
-		
+			if(player.jumping && !(player.y > canvas.height/2)){
+				console.log(player.y);
+				camera.y = .4*(canvas.height/2 - player.y);
+				zombie.y = canvas.height/2+camera.y;
+				}
+			}
+	
 
 				    
 		var zombieDie = function(){
@@ -193,6 +198,10 @@
 		if(bottle.y + bottleImage.height > canvas.height/2 + playerImage.height){
 			bottle.grav = 3;
 			shoot = false;		
+		}
+		
+		if(camera.x > 0){
+			//Wenn man den linken Bildschirmrand erreicht hat soll man nicht weiterkönnen 
 		}
 
 		
