@@ -8,7 +8,7 @@
 	var friction = 0.8;
 	var shoot = false;
 	var zombieHit = false;
-	var playerInmune = false;
+	var playerImmune = false;
 	var blinking = false;
 
 
@@ -94,10 +94,10 @@
 		if(zombieReady){
 			ctx.drawImage(zombieImage,zombie.x,zombie.y);
 		}
-		if(playerReady && !playerInmune){
+		if(playerReady && !playerImmune){
 			ctx.drawImage(playerImage,player.x,player.y);
 		}
-		else if(playerReady && playerInmune){
+		else if(playerReady && playerImmune){
 			if(!blinking){
 				blink();
 				if(!player.dead){
@@ -150,7 +150,7 @@
 		}
 
 		
-		if(32 in keysDown){
+		if(32 in keysDown && !playerImmune){
 			shoot = true; 
 		
 		}
@@ -240,12 +240,12 @@
 		zombieHit = false;
 	}
 		
-		if(!playerInmune){
+		if(!playerImmune){
 		if(player.x + playerImage.width > zombie.x && player.x < zombie.x + zombieImage.width && player.y + playerImage.height >= zombie.y && !zombie.dead){
 			player.lifes -= 1;
-			playerInmune = true;
+			playerImmune = true;
 
-			setTimeout(function(){playerInmune = false}, 2000);
+			setTimeout(function(){playerImmune = false}, 2000);
 			if(player.lifes == 0){
 				player.dead = true; 
 				playerDie();
@@ -286,12 +286,7 @@ var main = function(){
 
 var then = Date.now();
 main();
-if(!blinking){
-	setTimeout(function(){blinking = true, 500});
-	}
-else{
-	setTimeout(function(){blinking = false, 500});
-}
+
 
 
 
