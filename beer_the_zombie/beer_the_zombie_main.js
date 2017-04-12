@@ -58,7 +58,7 @@
 	}
 	var camera = {
 		x:0,
-		y:0,	
+		y:-270,	
 		camShift:3		//Fixer Wert, der den Background verschiebt, wenn man aus der "freien Bewegungszone herausgeht"
 
 	}
@@ -70,7 +70,7 @@
 		grav:3,
 		ticker:0	//Bestimmmt, wie schwer die Flasche ist. 
 	}
-		var player = {
+	var player = {
 		speed:3,		//Maximale Geschwindigkeit des Players 
 		x:100,			
 		y:canvas.height/2,
@@ -126,16 +126,23 @@
 			}
 		}
 		
-		//Malt die Box, in der sich der Spieler frei bewegen kann.
-		/*ctx.beginPath();
+	/*	//Malt die Box, in der sich der Spieler frei bewegen kann.
+		ctx.beginPath();
 		ctx.globalAlpha = 0.4;
 		ctx.fillRect(100,canvas.height/2,250,playerImage.height);
-		ctx.globalAlpha = 1.0;*/
-		
+		ctx.globalAlpha = 1.0;
+	//Malt die Box um die Flasche herum 
+	ctx.beginPath();
+	ctx.lineWidth="1";
+	ctx.strokeStyle = "black";
+	ctx.rect(bottle.bottleXCoord,bottle.bottleYCoord,32,32);
+	ctx.stroke();
+		*/
 		
 
 	}
 	var keysDown = {};
+
 	
 	addEventListener("keydown", function(e){
 		keysDown[e.keyCode]=true;
@@ -147,6 +154,7 @@
 
 	var update = function(){
 		
+		
 		if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
 			player.velX--;
 		}
@@ -155,13 +163,13 @@
 		}
 		if (87 in keysDown && !player.jumping){					//KeyUp
 			player.jumping = true; 
-			player.velY = -player.speed*5.5;
+			player.velY = -player.speed*5;
 		}
 
-		
+
+	
 		if(32 in keysDown && !playerImmune){
 			shoot = true; 
-		
 		}
 		if (!shoot){
 			bottle.bottleXCoord = player.x;			//Flasche hat stets die gleichen x und y Werte wie der Spieler(wenn nicht geschossen wird),
@@ -220,17 +228,15 @@
 			}
 			if(player.jumping && !(player.y > canvas.height/2)){
 					if(!zombie.dead){
-					camera.y = .4*(canvas.height/2 - player.y);
-					zombie.y = canvas.height/2+camera.y;
+					camera.y = (-270 - player.y)/2; 
+					zombie.y = 270+ canvas.height/2 + camera.y;
 				}
 				else{
-					camera.y = .4*(canvas.height/2 - player.y);
-					zombie.y = canvas.height/2+camera.y +140;	
+					camera.y = (-270 - player.y)/2; 
+					zombie.y = 270+ canvas.height/2 + camera.y + 95;
 					}
 				}
 			}
-	
-
 				    
 		var zombieDie = function(){
 			zombieImage = zombieDeadImage;
@@ -315,10 +321,3 @@ main();
 
 
 
-		/*ctx.fillStyle ="rgba(250,250,250,0.4)";
-		ctx.font = "20px Helvetica";
-		ctx.textAlign ="left";
-		ctx.textBaseline="top";
-		ctx.fillText("zombie gefangen: " +zombiesCaught, 32, 32);
-		ctx.fillText("[R]: Zurücksetzen" , 32,425);
-*/
