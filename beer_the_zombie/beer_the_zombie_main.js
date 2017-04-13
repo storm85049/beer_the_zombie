@@ -116,8 +116,7 @@
 		lifes: 3
 
 	}
-	
-	var keysDown = {};
+		var keysDown = {};
 	
 
 	
@@ -157,6 +156,58 @@
 			weapon.weaponYCoord = player.y;
 			zombieHit = false;
 	}
+	// Weapon Select
+		var drawWeaponSelect = function(){
+			let place = 48;
+			let choice = 1;
+			for(let i = 0; i < 4; i++){
+				ctx.beginPath();
+				ctx.lineWidth="1";
+				ctx.fillStyle = "rgba(0,0,0, 0,4)";
+				ctx.fillRect(canvas.width - place - 24, 10, 48, 48);
+				ctx.stroke();
+				if(choice == 4){
+					ctx.drawImage(canSpriteImage, 0, 0, 32, 32, canvas.width - place - 15, 17, 32, 32);
+				}
+				else if(choice == 3){
+					ctx.drawImage(weaponGreenSpriteImage, 0, 0, 32, 32, canvas.width - place - 15, 17, 32, 32);
+				}
+				else if(choice == 2){
+					ctx.drawImage(weaponBrownSpriteImage, 0, 0, 32, 32, canvas.width - place - 15, 17, 32, 32);
+				}
+				else{
+					ctx.drawImage(weaponFireSpriteImage, 0, 0, 32, 32, canvas.width - place - 15, 17, 32, 32);
+				}					
+				place += 48;
+				choice ++;
+			}
+			switch(weaponChoice){
+				case 2:
+					ctx.beginPath();
+					ctx.lineWidth="1";
+					ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+					ctx.fillRect(canvas.width - (48*3) - 24, 10, 48, 48);
+					break;
+				case 3:
+					ctx.beginPath();
+					ctx.lineWidth="1";
+					ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+					ctx.fillRect(canvas.width - (48*2) - 24, 10, 48, 48);
+					break;
+				case 4:
+					ctx.beginPath();
+					ctx.lineWidth="1";
+					ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+					ctx.fillRect(canvas.width - (48) - 24, 10, 48, 48);
+					break;
+				default:
+					ctx.beginPath();
+					ctx.lineWidth="1";
+					ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+					ctx.fillRect(canvas.width - (48*4) - 24, 10, 48, 48);
+					break;
+			}		
+		}
 	
 					//////////////////////////////////////////
 					////RENDER FUNCTION DRAWING ALL PICTURES//
@@ -195,7 +246,9 @@
 								}
 							}
 						}
+						drawWeaponSelect();
 					}
+					
 	/*	//Malt die Box, in der sich der Spieler frei bewegen kann.
 				ctx.beginPath();
 				ctx.globalAlpha = 0.4;
@@ -217,6 +270,7 @@
 			/////////////////////////////////
 			addEventListener("keydown", function(e){
 				keysDown[e.keyCode]=true;
+				if(!shoot){
 				switch(e.which){
 					case 49:
 						weaponChoice = 1;
@@ -236,7 +290,7 @@
 						weapon.weaponSpriteImage = weaponFireSpriteImage;
 						break;
 					default:
-						
+				}					
 						
 				}
 			}, false);
@@ -285,7 +339,6 @@
 							weapon.grav-=1 ;
 						}
 					}
-					
 					
 		if(!player.dead){
 			player.velX*=friction;			
@@ -346,7 +399,7 @@
 		///////////////////
 		//BottleHitCheck///
 		///////////////////
-		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + zombieImage.width && weapon.weaponYCoord+ 32 >= zombie.y && shoot){
+		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + zombieImage.width && weapon.weaponYCoord+ 32 >= zombie.y && shoot && !zombie.dead){
 			zombie.dead = true;
 			zombieDie();
 			zombieHit = true;
