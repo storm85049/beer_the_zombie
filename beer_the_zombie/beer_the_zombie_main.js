@@ -126,7 +126,8 @@
 		jumping:false,
 		velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verändert
 		velY:0,			//GLeiches wie für velX
-		dead:false
+		dead:false,
+		ticker: 0
 
 	}
 	var lifes = {
@@ -153,9 +154,15 @@
 		}
 		
 		var blink = function(){
-			ctx.globalAlpha = 0.4;
-			ctx.drawImage(playerImage,player.x,player.y);
-			ctx.globalAlpha = 1.0;
+			player.ticker++;
+			if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
+				ctx.globalAlpha = 0.4;
+				ctx.drawImage(playerImage,player.x,player.y);
+				ctx.globalAlpha = 1.0;
+			}
+			else{
+				ctx.drawImage(playerImage,player.x,player.y);	
+			}
 		}
 		
 		var zombieDie = function(){
