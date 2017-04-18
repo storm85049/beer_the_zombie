@@ -1,3 +1,8 @@
+	
+	//////////////////////////////////
+	/////////// SETUP ////////////////
+	//////////////////////////////////
+	
 	var canvas = document.createElement("canvas");
 	var ctx = canvas.getContext("2d");
 		canvas.width = 	920;
@@ -6,10 +11,12 @@
 	
 	var gravity = 0.6; 		
 	var friction = 0.8;
+	// Booleans
 	var shoot = false;
 	var zombieHit = false;
 	var playerImmune = false;
 	var blinking = false;
+	// Optionen
 	var weaponChoice = 0; 
 
 
@@ -78,6 +85,13 @@
 									playerDeadReady = true;
 								}	
 								playerDeadImage.src = "images/player_dummy_dead.png";
+
+								var lifeReady = false;
+								var lifeImage = new Image();
+								lifeImage.onload = function(){
+									lifeReady = true;
+								}	
+								lifeImage.src = "images/life_image.png";
 	
 	
 	//////////////////////
@@ -112,9 +126,14 @@
 		jumping:false,
 		velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verändert
 		velY:0,			//GLeiches wie für velX
-		dead:false,
-		lifes: 3
+		dead:false
 
+	}
+	var lifes = {
+		number: 3,
+		ticker: 0,
+		animationFrame: 0,
+		pause: false
 	}
 		var keysDown = {};
 	
@@ -206,7 +225,44 @@
 					ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
 					ctx.fillRect(canvas.width - (48*4) - 24, 10, 48, 48);
 					break;
-			}		
+			}				
+		}
+		var drawLife = function(){
+			let place = 0;	
+			for (let i = 1; i <= lifes.number; i++){
+				ctx.drawImage(lifeImage, lifes.animationFrame, 0, 32, 32, place + 15 , 17, 32, 32);
+				place += 32;
+			}
+			place = 0;
+			for (let i = 0; i < 3; i++){
+				ctx.globalAlpha = 0.3;
+				ctx.drawImage(lifeImage, 0, 0, 32, 32, place + 15 , 17, 32, 32);
+				ctx.globalAlpha = 1;
+				place += 32;
+			}
+		}
+		var animationLife = function(){
+			if (lifes.pause) {
+				lifes.animationFrame = 0;
+				lifes.ticker++;
+				if (lifes.ticker > 120){
+					lifes.pause = false;
+					lifes.ticker = 0;
+				}
+			}
+			else{
+				lifes.ticker ++;
+				if(lifes.ticker % 8 == 0 ){
+					lifes.animationFrame += 32;
+					if (lifes.animationFrame > 160){
+						lifes.ticker = 0;
+						lifes.animationFrame = 0;
+						lifes.pause = true;
+					}
+					
+					
+				}
+		}
 		}
 	
 					//////////////////////////////////////////
@@ -247,6 +303,8 @@
 							}
 						}
 						drawWeaponSelect();
+						animationLife();
+						drawLife();
 					}
 					
 	/*	//Malt die Box, in der sich der Spieler frei bewegen kann.
@@ -386,10 +444,10 @@
 				////////////////////////////////////////
 				if(!playerImmune){
 					if(player.x + playerImage.width > zombie.x && player.x < zombie.x + zombieImage.width && player.y + playerImage.height >= zombie.y && !zombie.dead){
-						player.lifes -= 1;
+						lifes.number -= 1;
 						playerImmune = true;
 						setTimeout(function(){playerImmune = false}, 2000);
-					if(player.lifes == 0){
+					if(lifes.number == 0){
 						player.dead = true; 
 						playerDie();
 					}
