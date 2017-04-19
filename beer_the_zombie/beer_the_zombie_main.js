@@ -16,6 +16,8 @@
 	var zombieHit = false;
 	var playerImmune = false;
 	var blinking = false;
+	var onLayerOne = false,
+		onLayerTwo = false;
 	// Optionen
 	var weaponChoice = 0; 
 	var isOnRight = true;
@@ -37,12 +39,19 @@
 								}	
 								playerImage.src = "images/player_dummy.png";		
 								
+								var playerLeftReady = false;
+								var playerLeftImage = new Image();
+									playerLeftImage.onload = function(){
+									playerLeftReady = true;
+								}	
+								playerLeftImage.src = "images/player_dummy_left.png";	
+								
 								var zombieReady = false;
 								var zombieImage = new Image();
 								zombieImage.onload = function(){
 									zombieReady = true;
 								}	
-								zombieImage.src = "images/enemy_dummy.png";
+								zombieImage.src = "images/zombie_sprite.png";
 								
 								var zombieDeadReady = false;
 								var zombieDeadImage = new Image();
@@ -93,6 +102,20 @@
 									lifeReady = true;
 								}	
 								lifeImage.src = "images/life_image.png";
+									
+								var platformReady = false;
+								var platformImage = new Image();
+								platformImage.onload = function(){
+									platformReady = true;
+								}	
+								platformImage.src = "images/tonne_1.png";	
+	
+								var platformSecondReady = false;
+								var platformSecondImage = new Image();
+								platformSecondImage.onload = function(){
+									platformSecondReady = true;
+								}	
+								platformSecondImage.src = "images/markise_1.png";	
 	
 	
 	//////////////////////
@@ -101,7 +124,10 @@
 	var zombie = {
 		x:canvas.width/2,
 		y:canvas.height/2,
-		dead:false
+		dead:false,
+		spriteX:0,
+		ticker:0,
+		animSpeed:10
 		
 	}
 	var camera = {
@@ -109,6 +135,17 @@
 		y:-270,	
 		camShift:3		//Fixer Wert, der den Background verschiebt, wenn man aus der "freien Bewegungszone herausgeht"
 
+	}
+	
+	var platform = {
+		x:820,
+		y:250,
+		initialY:250
+	}
+	var platform_second = {
+		x:1040,
+		y:20,
+		initialY:20
 	}
 	var weapon = {
 		spriteX:0,
@@ -128,7 +165,8 @@
 		velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verändert
 		velY:0,			//GLeiches wie für velX
 		dead:false,
-		ticker: 0
+		ticker: 0,
+		playerCurrentImage:playerImage
 
 	}
 	var lifes = {
@@ -192,6 +230,7 @@
 			weapon.weaponXCoord = player.x;
 			weapon.weaponYCoord = player.y;
 			zombieHit = false;
+
 	}
 	// Weapon Select
 		var drawWeaponSelect = function(){
@@ -290,11 +329,31 @@
 						if(bgReady){
 							ctx.drawImage(bgImage,camera.x,camera.y);
 						}
+						if(platformReady){
+							ctx.drawImage(platformImage,platform.x, platform.y);
+						}
+						if(platformSecondReady){
+							ctx.drawImage(platformSecondImage,platform_second.x, platform_second.y);
+						}
 						if(zombieReady){
-							ctx.drawImage(zombieImage,zombie.x,zombie.y);
+							if(!zombie.dead){
+								ctx.drawImage(zombieImage,zombie.spriteX,0,81,164,zombie.x,zombie.y,81,164);
+								if(zombie.ticker % zombie.animSpeed == 0 ){
+									zombie.spriteX += 81;
+									if(zombie.spriteX >243){
+										zombie.spriteX = 0;
+									}
+								}
+								zombie.ticker++;
+							}
+							else{
+								ctx.drawImage(zombieImage,zombie.x,zombie.y);
+								
+							}
+
 						}
 						if(playerReady && !playerImmune){
-							ctx.drawImage(playerImage,player.x,player.y);
+							ctx.drawImage(player.playerCurrentImage,player.x,player.y);
 						}
 						else if(playerReady && playerImmune){
 							if(!blinking){
@@ -324,22 +383,6 @@
 						animationLife();
 						drawLife();
 					}
-					
-	/*	//Malt die Box, in der sich der Spieler frei bewegen kann.
-				ctx.beginPath();
-				ctx.globalAlpha = 0.4;
-				ctx.fillRect(100,canvas.height/2,250,playerImage.height);		
-				ctx.globalAlpha = 1.0;
-		//Malt die Box um die Flasche herum 
-				ctx.beginPath();
-				ctx.lineWidth="1";
-				ctx.strokeStyle = "black";
-				ctx.rect(weapon.weaponXCoord,weapon.weaponYCoord,32,32);
-				ctx.stroke();
-		*/
-		
-
-	
 
 			/////////////////////////////////
 			////EVENT LISTENER KEYDOWN&UP////
@@ -388,9 +431,11 @@
 	var update = function(){
 		if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
 			player.velX--;
+			player.playerCurrentImage = playerLeftImage;
 		}
 		if(68 in keysDown && player.velX < player.speed){		//KeyRIGHT
 			player.velX++;
+			player.playerCurrentImage = playerImage;
 		}
 		if (87 in keysDown && !player.jumping){					//KeyUp
 			player.jumping = true; 
@@ -409,12 +454,12 @@
 					}
 					else{
 						if(!zombieHit){
-							weapon.weaponXCoord+=weapon.weaponVelX; 	//wenn shoot == true, dann verändert die Flasche ihre x und y Werte, mit normalen physikalischen
-							weapon.weaponYCoord-= weapon.grav;			//GLeichungen
+							weapon.weaponXCoord+=weapon.weaponVelX;					
+							weapon.weaponYCoord-= weapon.grav;			
 							weapon.grav-=0.2 ;
 						}
-						else{
-							weapon.weaponXCoord-=weapon.weaponVelX/3; 	
+						else{			
+							weapon.weaponXCoord+=weapon.weaponVelX;
 							weapon.weaponYCoord-= weapon.grav;			
 							weapon.grav-=1 ;
 						}
@@ -435,6 +480,8 @@
 								player.velX = 0;
 								camera.x += camera.camShift;
 								zombie.x += camera.camShift;
+								platform.x += camera.camShift;
+								platform_second.x += camera.camShift;
 							}
 							else {
 								player.x = 100;
@@ -447,25 +494,25 @@
 							player.velX = 0;
 							camera.x -= camera.camShift;
 							zombie.x -= camera.camShift;
+							platform.x -= camera.camShift;
+							platform_second.x -= camera.camShift;
 						}
-						if(player.jumping && !(player.y > canvas.height/2)){	//Kamera Bewegung Y
-								if(!zombie.dead){
+						if(player.jumping || (!onLayerOne && !onLayerTwo &&!(player.y > canvas.height/2))){	//Kamera Bewegung Y					
 									camera.y = (-270 - player.y)/2; 
-									zombie.y = 270+ canvas.height/2 + camera.y;
-								}
-								else{
-									camera.y = (-270 - player.y)/2; 
-									zombie.y = 270+ canvas.height/2 + camera.y + 95;
-								}
+									platform.y = 270 + platform.initialY + camera.y;
+									platform_second.y = 270 + platform_second.initialY + camera.y;
+									if(!zombie.dead){zombie.y = 270+ canvas.height/2 + camera.y}	
+									else{zombie.y = 270+ canvas.height/2 + camera.y + 95}		
+								
 						}
 		}
-				    
+				    console.log(camera.y);
 
 				////////////////////////////////////////
 				//checking for hit and remaining lifes//
 				////////////////////////////////////////
 				if(!playerImmune){
-					if(player.x + playerImage.width > zombie.x && player.x < zombie.x + zombieImage.width && player.y + playerImage.height >= zombie.y && !zombie.dead){
+					if(player.x + playerImage.width > zombie.x && player.x < zombie.x + 81 && player.y + playerImage.height >= zombie.y && !zombie.dead){
 						lifes.number -= 1;
 						playerImmune = true;
 						setTimeout(function(){playerImmune = false}, 2000);
@@ -479,7 +526,7 @@
 		///////////////////
 		//BottleHitCheck///
 		///////////////////
-		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + zombieImage.width && weapon.weaponYCoord+ 32 >= zombie.y && shoot && !zombie.dead){
+		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + 81 && weapon.weaponYCoord+ 32 >= zombie.y && shoot && !zombie.dead){
 			zombie.dead = true;
 			zombieDie();
 			zombieHit = true;
@@ -488,9 +535,26 @@
 		////////////////////////////
 		////player in y pos check///
 		////////////////////////////
-		if(player.y >= canvas.height/2 && !player.dead){
+		if(onLayerOne){
+			if(player.y >= 150){
+				player.y = 150 ;
+				player.jumping = false;
+				player.velY = 0;
+
+			}
+		}
+		else if(onLayerTwo){
+				if(player.y >= 15){
+				player.y = 15 ;
+				player.jumping = false;
+				player.velY = 0;		
+				}
+			
+		}
+		else if(player.y >= canvas.height/2 && !player.dead){
 			player.y = canvas.height/2;
 			player.jumping = false;
+			player.velY = 0;
 		}
 		////////////////////////////
 		//Weapon Ground Hit Check///
@@ -501,7 +565,22 @@
 			resetWeapon();
 
 		}
-	zombieMove(2);
+		/*First Platform Check*/
+		if(camera.x - (player.x+playerImage.width) < -(platform.x +40 - camera.x) && camera.x - player.x >-(platform.x +platformImage.width -camera.x) &&player.y+playerImage.height < platform.y && player.y+playerImage.height > platform.y -20 && player.velY > 0){
+				onLayerOne = true;	
+		}
+		else if (!(camera.x - (player.x+playerImage.width) < -(platform.x +40 -camera.x) && camera.x - player.x > -(platform.x +platformImage.width -camera.x))){
+			onLayerOne = false;
+		}
+		/*Second Platform Check*/
+		if(camera.x - (player.x+playerImage.width) < -(platform_second.x- camera.x) && camera.x - player.x >-(platform_second.x + platformSecondImage.width -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
+				onLayerTwo = true;	
+		}
+		else if (!(camera.x - (player.x+playerImage.width) < -(platform_second.x -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width -camera.x))){
+			onLayerTwo = false;
+		}		
+		
+	zombieMove(1);
 	}
 	
 	////////////////////////////
@@ -517,3 +596,27 @@ var main = function(){
 	requestAnimationFrame(main);
 }
 main();
+
+
+
+
+
+
+	/*	//Malt die Box, in der sich der Spieler frei bewegen kann.
+				ctx.beginPath();
+				ctx.globalAlpha = 0.4;
+				ctx.fillRect(100,canvas.height/2,250,playerImage.height);		
+				ctx.globalAlpha = 1.0;
+		//Malt die Box um die Flasche herum 
+				ctx.beginPath();
+				ctx.lineWidth="1";
+				ctx.strokeStyle = "black";
+				ctx.rect(weapon.weaponXCoord,weapon.weaponYCoord,32,32);
+				ctx.stroke();
+		//Malt Bxoxen um den Spieler und die erste Platform herum				
+				ctx.beginPath();
+				ctx.rect(player.x,player.y,playerImage.width,playerImage.height);
+				ctx.stroke();
+				ctx.beginPath();
+				ctx.rect(platform.x,platform.y,platformImage.width,platformImage.height);
+				ctx.stroke();*/
