@@ -18,6 +18,7 @@
 	var blinking = false;
 	// Optionen
 	var weaponChoice = 0; 
+	var isOnRight = true;
 
 
 	document.body.appendChild(canvas);
@@ -145,13 +146,23 @@
 		///////////////////////////////////////
 		
 		var zombieMove = function(speed){
-			if(!zombie.dead){
-				zombie.x -= speed;
+			if (!zombie.dead){
+			if(isOnRight){
+				zombie.x-=speed;
+				if (zombie.x+100<=player.x){
+					isOnRight=false;
+					console.log(isOnRight);
+				}
 			}
-			if (zombie.x + zombieImage.width <= 0){
-				zombie.x = canvas.width;
+			if (!isOnRight){
+				zombie.x+=speed;
+				if (zombie.x-100>player.x){
+					isOnRight=true;
+					console.log(isOnRight);
+				}
 			}
-		}
+			}
+			}
 		
 		var blink = function(){
 			player.ticker++;
@@ -340,19 +351,23 @@
 					case 49:
 						weaponChoice = 1;
 						weapon.weaponSpriteImage = canSpriteImage;
+						weapon.weaponVelX = 8
 						break;
 					case 50:
 						weaponChoice = 2;	
 						weapon.weaponSpriteImage = weaponGreenSpriteImage;
+						weapon.weaponVelX = 15
 						break;
 					case 51:
 						weaponChoice = 3;
 						weapon.weaponSpriteImage = weaponBrownSpriteImage;
+						weapon.weaponVelX = 6
 
 						break;
 					case 52:
 						weaponChoice = 4;
 						weapon.weaponSpriteImage = weaponFireSpriteImage;
+						weapon.weaponVelX = 3
 						break;
 					default:
 				}					
