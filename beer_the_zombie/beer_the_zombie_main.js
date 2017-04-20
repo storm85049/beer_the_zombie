@@ -155,7 +155,9 @@
 		grav:3,
 		ticker:0,
 		weaponSpriteImage:canSpriteImage,
-		rotateSpeed:5//Bestimmmt, wie schwer die Flasche ist. 
+		rotateSpeed:5, //Bestimmmt, wie schwer die Flasche ist. 
+		direction: true
+
 	}
 	var player = {
 		speed:3,		//Maximale Geschwindigkeit des Players 
@@ -189,14 +191,12 @@
 				zombie.x-=speed;
 				if (zombie.x+100<=player.x){
 					isOnRight=false;
-					console.log(isOnRight);
 				}
 			}
 			if (!isOnRight){
 				zombie.x+=speed;
 				if (zombie.x-100>player.x){
 					isOnRight=true;
-					console.log(isOnRight);
 				}
 			}
 			}
@@ -320,7 +320,18 @@
 					
 				}
 		}
+	}
+	
+	var trackWeaponDirection = function(){
+		if(!shoot && playerImage == player.playerCurrentImage){
+			weapon.direction = true;
 		}
+		else if(!shoot && playerLeftImage == player.playerCurrentImage){
+			weapon.direction = false;
+		}
+					
+			
+	}
 	
 					//////////////////////////////////////////
 					////RENDER FUNCTION DRAWING ALL PICTURES//
@@ -453,17 +464,31 @@
 						weapon.weaponYCoord = player.y; 			// wird jedoch erst in der draw Funktion gemalt, wenn shoot == true ist 
 					}
 					else{
-						if(!zombieHit){
-							weapon.weaponXCoord+=weapon.weaponVelX;					
-							weapon.weaponYCoord-= weapon.grav;			
-							weapon.grav-=0.2 ;
+						if(weapon.direction){
+							if(!zombieHit){
+								weapon.weaponXCoord+=weapon.weaponVelX;					
+								weapon.weaponYCoord-= weapon.grav;			
+								weapon.grav-=0.2 ;
 						}
-						else{			
-							weapon.weaponXCoord+=weapon.weaponVelX;
-							weapon.weaponYCoord-= weapon.grav;			
-							weapon.grav-=1 ;
+							else{			
+								weapon.weaponXCoord -= weapon.weaponVelX/3;
+								weapon.weaponYCoord -= weapon.grav;			
+								weapon.grav -= 1 ;
+							}
 						}
-					}
+						else{
+							if(!zombieHit){
+								weapon.weaponXCoord -= weapon.weaponVelX;					
+								weapon.weaponYCoord-= weapon.grav;			
+								weapon.grav-=0.2 ;
+						}
+							else{			
+								weapon.weaponXCoord += weapon.weaponVelX/3;
+								weapon.weaponYCoord -= weapon.grav;			
+								weapon.grav -= 1 ;
+							}
+						}
+				}
 					
 		if(!player.dead){
 			player.velX*=friction;			
@@ -506,7 +531,6 @@
 								
 						}
 		}
-				    console.log(camera.y);
 
 				////////////////////////////////////////
 				//checking for hit and remaining lifes//
@@ -581,6 +605,7 @@
 		}		
 		
 	zombieMove(1);
+	trackWeaponDirection();
 	}
 	
 	////////////////////////////
