@@ -8,7 +8,7 @@
 		canvas.width = 	920;
 		canvas.height = 530;
 	
-	
+
 	var gravity = 0.6; 		
 	var friction = 0.8;
 	// Booleans
@@ -65,6 +65,13 @@
 									zombieDeadReady = true;
 								}	
 								zombieDeadImage.src = "images/enemy_dummy_dead.png";
+
+								var zombieDeadRightReady = false;
+								var zombieDeadRightImage = new Image();
+								zombieDeadRightImage.onload = function(){
+									zombieDeadRightReady = true;
+								}	
+								zombieDeadRightImage.src = "images/enemy_dummy_dead_left.png";
 								
 								var weaponSpriteReady = false;
 								var canSpriteImage = new Image();
@@ -134,7 +141,8 @@
 		spriteX:0,
 		ticker:0,
 		animSpeed:10,
-		zombieCurrentImage: zombieImage
+		zombieCurrentImage: zombieImage,
+		lifes: 3
 		
 	}
 	var camera = {
@@ -207,10 +215,10 @@
 				zombie.zombieCurrentImage = zombieRightImage;
 				if (zombie.x-100>player.x){
 					isOnRight=true;
+					}
 				}
 			}
-			}
-			}
+		}
 		var blink = function(){
 			player.ticker++;
 			if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
@@ -224,9 +232,16 @@
 		}
 		
 		var zombieDie = function(){
-			zombieImage = zombieDeadImage;
-			zombie.y = canvas.height -180;
-			zombie.x += 50
+			if(isOnRight){
+				zombie.zombieCurrentImage = zombieDeadImage;
+				zombie.y = canvas.height -180;
+				zombie.x += 50
+			}
+			else{
+				zombie.zombieCurrentImage = zombieDeadRightImage;
+				zombie.y = canvas.height -180;
+				zombie.x -= 50
+			}
 		}
 		
 		var playerDie = function(){
@@ -359,7 +374,7 @@
 						
 						if(zombieReady){
 							if (zombie.dead){
-								ctx.drawImage(zombieImage,zombie.x,zombie.y);
+								ctx.drawImage(zombie.zombieCurrentImage,zombie.x,zombie.y);
 							}
 							if(zombie.zombieCurrentImage == zombieImage){
 								if(!zombie.dead){
@@ -569,10 +584,16 @@
 		///////////////////
 		//BottleHitCheck///
 		///////////////////
-		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + 81 && weapon.weaponYCoord+ 32 >= zombie.y && shoot && !zombie.dead){
-			zombie.dead = true;
-			zombieDie();
+		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + 81 && weapon.weaponYCoord+ 32 >= zombie.y && shoot && !zombie.dead){	
+			zombie.lifes -= 1;
 			zombieHit = true;
+			if (zombie.lifes == 0){
+				zombie.dead = true;
+				zombieDie();
+			}
+			console.log(zombie.lifes)	
+			
+			
 		}
 		
 		////////////////////////////
@@ -609,17 +630,17 @@
 
 		}
 		/*First Platform Check*/
-		if(camera.x - (player.x+playerImage.width) < -(platform.x +40 - camera.x) && camera.x - player.x >-(platform.x +platformImage.width -camera.x) &&player.y+playerImage.height < platform.y && player.y+playerImage.height > platform.y -20 && player.velY > 0){
+		if(camera.x - (player.x+playerImage.width) < -(platform.x +40 - camera.x) && camera.x - player.x >-(platform.x +platformImage.width - 20 -camera.x) &&player.y+playerImage.height < platform.y && player.y+playerImage.height > platform.y -20 && player.velY > 0){
 				onLayerOne = true;	
 		}
-		else if (!(camera.x - (player.x+playerImage.width) < -(platform.x +40 -camera.x) && camera.x - player.x > -(platform.x +platformImage.width -camera.x))){
+		else if (!(camera.x - (player.x+playerImage.width) < -(platform.x +40 -camera.x) && camera.x - player.x > -(platform.x +platformImage.width - 20 -camera.x))){
 			onLayerOne = false;
 		}
 		/*Second Platform Check*/
-		if(camera.x - (player.x+playerImage.width) < -(platform_second.x- camera.x) && camera.x - player.x >-(platform_second.x + platformSecondImage.width -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
+		if(camera.x - (player.x+playerImage.width) < -(platform_second.x- camera.x +20) && camera.x - player.x >-(platform_second.x + platformSecondImage.width - 20 -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
 				onLayerTwo = true;	
 		}
-		else if (!(camera.x - (player.x+playerImage.width) < -(platform_second.x -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width -camera.x))){
+		else if (!(camera.x - (player.x+playerImage.width) < -(platform_second.x + 20 -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width - 20 -camera.x))){
 			onLayerTwo = false;
 		}		
 		
