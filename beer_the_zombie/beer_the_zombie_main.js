@@ -15,7 +15,6 @@
 	var shoot = false;
 	var zombieHit = false;
 	var playerImmune = false;
-	var blinking = false;
 	var onLayerOne = false,
 		onLayerTwo = false;
 	// Optionen
@@ -392,19 +391,11 @@
 						if(playerReady && !playerImmune){
 							ctx.drawImage(player.playerCurrentImage,player.x,player.y);
 						}
-						else if(playerReady && playerImmune){
-							if(!blinking){
-								blink();
-								if(!player.dead){
-									blinking = true;
-								}
-							}
-							else{
-								ctx.drawImage(player.playerCurrentImage,player.x,player.y);	
-								if(!player.dead){
-									blinking = false;
-								}
-							}	
+						else if(playerReady && playerImmune && !player.dead){
+							blink();							
+						}
+						else{
+							ctx.drawImage(player.playerCurrentImage,player.x,player.y);
 						}
 						if(weaponSpriteReady && shoot){
 							ctx.drawImage(weapon.weaponSpriteImage,weapon.spriteX,0,32,32,weapon.weaponXCoord,weapon.weaponYCoord,32,32);
