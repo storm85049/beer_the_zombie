@@ -242,11 +242,27 @@
 				zombie.y = canvas.height -180;
 				zombie.x -= 50
 			}
+			if (onLayerOne){
+				zombie.y = canvas.height/2+152;
+			}
+			else if (onLayerTwo){
+				zombie.y= canvas.height-42;
+			}
+			else{
+				zombie.y = canvas.height/2+100;
+			}
 		}
 		
 		var playerDie = function(){
+		if (player.playerCurrentImage == playerImage){
+
 			player.playerCurrentImage = playerDeadImage;
 			player.y = canvas.height-120; 
+		}
+		else if (player.playerCurrentImage == playerLeftImage){
+			player.playerCurrentImage = playerDeadRightImage;
+			player.y = canvas.height-120;
+		}
 			
 		}
 			
