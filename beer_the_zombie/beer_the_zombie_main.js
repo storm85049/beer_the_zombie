@@ -52,6 +52,13 @@
 									zombieReady = true;
 								}	
 								zombieImage.src = "images/zombie_sprite.png";
+
+								var zombieRightReady = false;
+								var zombieRightImage = new Image();
+								zombieRightImage.onload = function(){
+									zombieRightReady = true;
+								}	
+								zombieRightImage.src = "images/zombie_sprite_right.png";
 								
 								var zombieDeadReady = false;
 								var zombieDeadImage = new Image();
@@ -127,7 +134,8 @@
 		dead:false,
 		spriteX:0,
 		ticker:0,
-		animSpeed:10
+		animSpeed:10,
+		zombieCurrentImage: zombieImage
 		
 	}
 	var camera = {
@@ -189,28 +197,30 @@
 			if (!zombie.dead){
 			if(isOnRight){
 				zombie.x-=speed;
+				zombie.zombieCurrentImage = zombieImage;
 				if (zombie.x+100<=player.x){
 					isOnRight=false;
 				}
+
 			}
 			if (!isOnRight){
 				zombie.x+=speed;
+				zombie.zombieCurrentImage = zombieRightImage;
 				if (zombie.x-100>player.x){
 					isOnRight=true;
 				}
 			}
 			}
 			}
-		
 		var blink = function(){
 			player.ticker++;
 			if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
 				ctx.globalAlpha = 0.4;
-				ctx.drawImage(playerImage,player.x,player.y);
+				ctx.drawImage(player.playerCurrentImage, player.x, player.y);
 				ctx.globalAlpha = 1.0;
 			}
 			else{
-				ctx.drawImage(playerImage,player.x,player.y);	
+				ctx.drawImage(player.playerCurrentImage, player.x, player.y);	
 			}
 		}
 		
@@ -221,7 +231,7 @@
 		}
 		
 		var playerDie = function(){
-			playerImage = playerDeadImage;
+			player.playerCurrentImage = playerDeadImage;
 			player.y = canvas.height-120; 
 			
 		}
@@ -346,21 +356,37 @@
 						if(platformSecondReady){
 							ctx.drawImage(platformSecondImage,platform_second.x, platform_second.y);
 						}
+
+						
 						if(zombieReady){
-							if(!zombie.dead){
-								ctx.drawImage(zombieImage,zombie.spriteX,0,81,164,zombie.x,zombie.y,81,164);
-								if(zombie.ticker % zombie.animSpeed == 0 ){
-									zombie.spriteX += 81;
-									if(zombie.spriteX >243){
-										zombie.spriteX = 0;
+							if (zombie.dead){
+								ctx.drawImage(zombieImage,zombie.x,zombie.y);
+							}
+							if(zombie.zombieCurrentImage == zombieImage){
+								if(!zombie.dead){
+									ctx.drawImage(zombieImage,zombie.spriteX,0,81,164,zombie.x,zombie.y,81,164);
+									if(zombie.ticker % zombie.animSpeed == 0 ){
+										zombie.spriteX += 81;
+										if(zombie.spriteX >243){
+											zombie.spriteX = 0;
+										}
 									}
 								}
-								zombie.ticker++;
 							}
-							else{
-								ctx.drawImage(zombieImage,zombie.x,zombie.y);
-								
+							else if(zombie.zombieCurrentImage == zombieRightImage){
+								if(!zombie.dead){
+									ctx.drawImage(zombieRightImage,zombie.spriteX,0,81,164,zombie.x,zombie.y,81,164);
+									if(zombie.ticker % zombie.animSpeed == 0 ){
+										zombie.spriteX += 81;
+										if(zombie.spriteX >243){
+											zombie.spriteX = 0;
+										}
+									}
+								}
 							}
+							
+
+							zombie.ticker++;
 
 						}
 						if(playerReady && !playerImmune){
@@ -374,7 +400,7 @@
 								}
 							}
 							else{
-								ctx.drawImage(playerImage,player.x,player.y);	
+								ctx.drawImage(player.playerCurrentImage,player.x,player.y);	
 								if(!player.dead){
 									blinking = false;
 								}
@@ -440,6 +466,7 @@
 	///////////////////////////////////////////////
 	
 	var update = function(){
+		if(!player.dead){
 		if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
 			player.velX--;
 			player.playerCurrentImage = playerLeftImage;
@@ -454,6 +481,7 @@
 		}
 		if(32 in keysDown && !playerImmune){
 			shoot = true; 
+		}
 		}
 		
 					//////////////////////////////////
