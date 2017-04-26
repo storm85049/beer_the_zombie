@@ -7,7 +7,7 @@
 	var gravity = 0.6,	
 		friction = 0.8,
 		weaponChoice = 0,
-		numOfZombies = 10;
+		numOfZombies = 4;
 	var shoot = false,
 		playerImmune = false,
 		onLayerOne = false,
@@ -458,7 +458,7 @@
 						else if(playerReady && playerImmune && !player.dead){
 							blink();							
 						}
-						else{
+						else if(playerReady){
 							ctx.drawImage(player.playerCurrentImage,player.x,player.y);
 						}
 						if(weaponSpriteReady && shoot){
