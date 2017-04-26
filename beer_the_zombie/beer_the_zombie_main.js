@@ -8,7 +8,7 @@
 	var gravity = 0.6,	
 		friction = 0.8,
 		weaponChoice = 0,
-		numOfZombies = 10;
+		numOfZombies = 5;
 	var shoot = false,
 		playerImmune = false,
 		onLayerOne = false,
@@ -683,7 +683,7 @@
 			onLayerTwo = false;
 		}		
 		
-	zombieMove(2);
+	zombieMove(1);
 	trackWeaponDirection();
 	
 		if(loaded){
