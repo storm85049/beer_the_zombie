@@ -1,0 +1,25 @@
+#ctx{
+
+    margin-left: 20%;
+    display: block;
+    width: 920px;
+    height: 530px;
+}
+.interactives{
+		opacity: 0.5;
+		filter: alpha(opacity=50); 
+}
+
+.interactives:hover {
+		opacity: 1.0;
+		filter: alpha(opacity=100); 
+}
+li {
+	list-style-type:none;
+	display:block;
+}
+.options{
+	display:block;
+	float:left;
+		
+}
