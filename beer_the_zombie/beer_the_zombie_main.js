@@ -1,14 +1,13 @@
 
-	var canvas = document.createElement("canvas");
+	var canvas = document.getElementById('ctx');
 	var ctx = canvas.getContext("2d");
-		canvas.width = 	920;
-		canvas.height = 530;
+	canvas.width = 	920;
+	canvas.height = 530;
 	
-
 	var gravity = 0.6,	
 		friction = 0.8,
 		weaponChoice = 0,
-		numOfZombies = 5;
+		numOfZombies = 10;
 	var shoot = false,
 		playerImmune = false,
 		onLayerOne = false,
@@ -19,11 +18,8 @@
 		zombieHit =false;
 	var zombie = new Array();
 
-
-
-
-	document.body.appendChild(canvas);
 	window.onload = function(){loaded=true;}
+
 								var bgReady = false;
 								var bgImage = new Image();
 								bgImage.onload = function(){
@@ -36,7 +32,7 @@
 									playerImage.onload = function(){
 									playerReady = true;
 								}	
-								playerImage.src = "images/player_dummy.png";
+								playerImage.src = "images/player_sprite.png";
 								
 								var playerDeadReady = false;
 								var playerDeadImage = new Image();
@@ -59,7 +55,7 @@
 									playerLeftImage.onload = function(){
 									playerLeftReady = true;
 								}	
-								playerLeftImage.src = "images/player_dummy_left.png";	
+								playerLeftImage.src = "images/player_sprite_left.png";	
 								
 								var zombieReady = false;
 								var zombieImage = new Image();
@@ -188,7 +184,14 @@
 		velY:0,			//GLeiches wie für velX
 		dead:false,
 		ticker: 0,
-		playerCurrentImage:playerImage
+		playerCurrentImage:playerImage,
+		spriteTicker:0,
+		animSpeed:10,
+		spriteX:0,
+		moving:false,
+		onLeftWall:false,
+		onRightWall:false,
+		inAir:false
 
 	}
 	var lifes = {
@@ -229,12 +232,34 @@
 		var blink = function(){
 			player.ticker++;
 			if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
-				ctx.globalAlpha = 0.4;
-				ctx.drawImage(player.playerCurrentImage, player.x, player.y);
+				ctx.globalAlpha = 0.4;	
+				ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+				if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
+						if(player.spriteTicker % player.animSpeed == 0 ){
+								player.spriteX += 64;
+									if(player.spriteX >192){
+											player.spriteX = 0;
+											}
+										}
+								player.spriteTicker++;
+							}
+										
+				else{player.spriteX = 0;}
 				ctx.globalAlpha = 1.0;
 			}
 			else{
-				ctx.drawImage(player.playerCurrentImage, player.x, player.y);	
+				ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+				if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
+						if(player.spriteTicker % player.animSpeed == 0 ){
+								player.spriteX += 64;
+									if(player.spriteX >192){
+											player.spriteX = 0;
+											}
+										}
+								player.spriteTicker++;
+							}
+										
+				else{player.spriteX = 0;}	
 			}
 		}
 		
@@ -264,7 +289,6 @@
 		
 		var playerDie = function(){
 		if (player.playerCurrentImage == playerImage){
-
 			player.playerCurrentImage = playerDeadImage;
 			player.y = canvas.height-120; 
 		}
@@ -415,8 +439,22 @@
 							}
 						}
 						if(playerReady && !playerImmune){
-							ctx.drawImage(player.playerCurrentImage,player.x,player.y);
-						}
+							ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+											if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
+												if(player.spriteTicker % player.animSpeed == 0 ){
+													player.spriteX += 64;
+													if(player.spriteX >192){
+														player.spriteX = 0;
+													}
+												}
+												player.spriteTicker++;
+											}
+										
+											else{player.spriteX = 0;}
+													
+									}
+									
+						
 						else if(playerReady && playerImmune && !player.dead){
 							blink();							
 						}
@@ -436,6 +474,7 @@
 						drawWeaponSelect();
 						animationLife();
 						drawLife();
+
 					}
 
 			/////////////////////////////////
@@ -561,6 +600,12 @@
 			player.velY += gravity;
 			player.y += player.velY;
 			player.x += player.velX;
+			if(player.velX < -.1 || player.velX >.1 ){
+				player.moving = true;
+			}
+			else{player.moving=false;}
+			if(player.velY != gravity){player.inAir = true}else{player.inAir = false;}
+			
 			
 						///////////////////////////////////////
 						////////////Camera FOllowing///////////
@@ -569,6 +614,7 @@
 							if (camera.x < 0){					//Kamera Bewegung x links
 								player.x  = 100;
 								player.velX = 0;
+								player.onLeftWall = true;
 								camera.x += camera.camShift;
 								for(i in zombie){zombie[i].x += camera.camShift;}
 								platform.x += camera.camShift;
@@ -579,15 +625,19 @@
 								player.velX = 0;
 								camera.x =0;
 							}
-						}	
-						if(player.x + playerImage.width > 350){ // Kamera Bewegung X rechts
-							player.x = 350 - playerImage.width;
+						}
+						else{player.onLeftWall = false;}
+						
+						if(player.x + 64 > 350){ // Kamera Bewegung X rechts
+							player.x = 350 - 64;
 							player.velX = 0;
 							camera.x -= camera.camShift;
+							player.onRightWall=true;
 							for(i in zombie){zombie[i].x -= camera.camShift;}
 							platform.x -= camera.camShift;
 							platform_second.x -= camera.camShift;
 						}
+						else{player.onRightWall = false;}
 						if(player.jumping || (!onLayerOne && !onLayerTwo &&!(player.y > canvas.height/2))){	//Kamera Bewegung Y					
 									camera.y = (-270 - player.y)/2; 
 									platform.y = 270 + platform.initialY + camera.y;
@@ -609,7 +659,7 @@
 				////////////////////////////////////////
 				if(!playerImmune){
 				for(i in zombie){
-					if(player.x + playerImage.width > zombie[i].x && player.x < zombie[i].x + 81 && player.y + playerImage.height >= zombie[i].y && !zombie[i].dead){
+					if(player.x + 64 > zombie[i].x && player.x < zombie[i].x + 81 && player.y + playerImage.height >= zombie[i].y && !zombie[i].dead){
 						lifes.amount -= 1;
 						playerImmune = true;
 						setTimeout(function(){playerImmune = false}, 2000);
@@ -659,6 +709,7 @@
 			player.jumping = false;
 			player.velY = 0;
 		}
+	
 		////////////////////////////
 		//Weapon Ground Hit Check///
 		////////////////////////////
@@ -669,17 +720,17 @@
 
 		}
 		/*First Platform Check*/
-		if(camera.x - (player.x+playerImage.width) < -(platform.x +40 - camera.x) && camera.x - player.x >-(platform.x +platformImage.width - 20 -camera.x) &&player.y+playerImage.height < platform.y && player.y+playerImage.height > platform.y -20 && player.velY > 0){
+		if(camera.x - (player.x+64) < -(platform.x +40 - camera.x) && camera.x - player.x >-(platform.x +platformImage.width - 20 -camera.x) &&player.y+playerImage.height < platform.y && player.y+playerImage.height > platform.y -20 && player.velY > 0){
 				onLayerOne = true;	
 		}
-		else if (!(camera.x - (player.x+playerImage.width) < -(platform.x +40 -camera.x) && camera.x - player.x > -(platform.x +platformImage.width - 20 -camera.x))){
+		else if (!(camera.x - (player.x+64) < -(platform.x +40 -camera.x) && camera.x - player.x > -(platform.x +platformImage.width - 20 -camera.x))){
 			onLayerOne = false;
 		}
 		/*Second Platform Check*/
-		if(camera.x - (player.x+playerImage.width) < -(platform_second.x- camera.x +20) && camera.x - player.x >-(platform_second.x + platformSecondImage.width - 30 -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
-				onLayerTwo = true;	
+		if(camera.x - (player.x+64) < -(platform_second.x- camera.x +20) && camera.x - player.x >-(platform_second.x + platformSecondImage.width - 30 -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
+				onLayerTwo = true;				
 		}
-		else if (!(camera.x - (player.x+playerImage.width) < -(platform_second.x + 20 -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width - 30 -camera.x))){
+		else if (!(camera.x - (player.x+64) < -(platform_second.x + 20 -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width - 30 -camera.x))){
 			onLayerTwo = false;
 		}		
 		
@@ -706,8 +757,10 @@
 var main = function(){
 	update(); 
 	render();
+	var then = new Date().getTime();
 	requestAnimationFrame(main);
 }
+
 main();
 
 
