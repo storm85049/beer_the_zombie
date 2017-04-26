@@ -4,12 +4,27 @@
 		<head>
 			<meta charset="utf-8">
 			<title>BeerZombie</title>
+			<style>
+			.interactives{
+				opacity: 0.5;
+				filter: alpha(opacity=50); 
+			}
 
+			.interactives:hover {
+				opacity: 1.0;
+				filter: alpha(opacity=100); 
+			}
+			</style>
 		</head>
 		
 		<body> 	
-		<script src="beer_the_zombie_main.js"></script>
-
+			<!--<script src="ArrayTest.js"></script>-->
+			<script src="ArrayTryFullCode.js"></script>
+			<!--<script src="beer_the_zombie_main.js" margin-left="20px"></script>	-->	
+			<a  target ="_blank"href="http://www.facebook.com"><img margin-left="80%" border="0"src="images/fb_like_button.jpg" width="110" height="51"></img></a>
+			<br><img class='interactives'src="images/wasd.png" id='wasd'></img>	
+			<img class='interactives' src="images/arrows.png" id='arr'></img>
+			<p id='currentLayout'>currentLayout:WASD</p>
 		</body>
 		
 	

@@ -1,29 +1,29 @@
-	
-	//////////////////////////////////
-	/////////// SETUP ////////////////
-	//////////////////////////////////
-	
+
 	var canvas = document.createElement("canvas");
 	var ctx = canvas.getContext("2d");
 		canvas.width = 	920;
 		canvas.height = 530;
 	
 
-	var gravity = 0.6; 		
-	var friction = 0.8;
-	// Booleans
-	var shoot = false;
-	var zombieHit = false;
-	var playerImmune = false;
-	var onLayerOne = false,
-		onLayerTwo = false;
-	// Optionen
-	var weaponChoice = 0; 
-	var isOnRight = true;
+	var gravity = 0.6,	
+		friction = 0.8,
+		weaponChoice = 0,
+		numOfZombies = 10;
+	var shoot = false,
+		playerImmune = false,
+		onLayerOne = false,
+		onLayerTwo = false,
+		arr = false,
+		wasd = true,
+		loaded = false,
+		zombieHit =false;
+	var zombie = new Array();
+
+
 
 
 	document.body.appendChild(canvas);
-			
+	window.onload = function(){loaded=true;}
 								var bgReady = false;
 								var bgImage = new Image();
 								bgImage.onload = function(){
@@ -36,7 +36,23 @@
 									playerImage.onload = function(){
 									playerReady = true;
 								}	
-								playerImage.src = "images/player_dummy.png";		
+								playerImage.src = "images/player_dummy.png";
+								
+								var playerDeadReady = false;
+								var playerDeadImage = new Image();
+								playerDeadImage.onload = function(){
+		
+									playerDeadReady = true;
+								}	
+								playerDeadImage.src = "images/player_dummy_dead.png";								
+								
+								var playerDeadRightReady = false;
+								var playerDeadRightImage = new Image();
+								playerDeadRightImage.onload = function(){
+		
+									playerDeadRightReady = true;
+								}	
+								playerDeadRightImage.src = "images/player_dummy_dead_right.png";								
 								
 								var playerLeftReady = false;
 								var playerLeftImage = new Image();
@@ -101,13 +117,7 @@
 								}	
 								weaponBrownSpriteImage.src = "images/Brown_Bottle_Sprite.png";
 								
-								var playerDeadReady = false;
-								var playerDeadImage = new Image();
-								playerDeadImage.onload = function(){
-		
-									playerDeadReady = true;
-								}	
-								playerDeadImage.src = "images/player_dummy_dead.png";
+
 
 								var lifeReady = false;
 								var lifeImage = new Image();
@@ -130,20 +140,15 @@
 								}	
 								platformSecondImage.src = "images/markise_1.png";	
 	
-	
 	//////////////////////
+	
 	//////OBJECTS/////////
 	//////////////////////	
-	var zombie = {
-		x:canvas.width/2,
-		y:canvas.height/2,
-		dead:false,
-		spriteX:0,
-		ticker:0,
-		animSpeed:10,
-		zombieCurrentImage: zombieImage,
-		lifes: 3
-		
+	for(let i = 0; i < numOfZombies; i++){
+		zombie[i] = {		x:Math.floor(Math.random()*canvas.width+canvas.width/2),y:canvas.height/2,
+							dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
+							zombieCurrentImage: zombieImage,lifes:3
+		}
 	}
 	var camera = {
 		x:0,
@@ -153,7 +158,7 @@
 	}
 	
 	var platform = {
-		x:820,
+		x:800,
 		y:250,
 		initialY:250
 	}
@@ -187,7 +192,7 @@
 
 	}
 	var lifes = {
-		number: 3,
+		amount: 3,
 		ticker: 0,
 		animationFrame: 0,
 		pause: false
@@ -201,21 +206,23 @@
 		///////////////////////////////////////
 		
 		var zombieMove = function(speed){
-			if (!zombie.dead){
-			if(isOnRight){
-				zombie.x-=speed;
-				zombie.zombieCurrentImage = zombieImage;
-				if (zombie.x+100<=player.x){
-					isOnRight=false;
-				}
+			for(i in zombie){
+				if (!zombie[i].dead){
+					if(zombie[i].isOnRight){
+						zombie[i].x-=speed;
+						zombie[i].zombieCurrentImage = zombieImage;
+						if (zombie[i].x+100<=player.x){
+							zombie[i].isOnRight=false;
+						}
 
-			}
-			if (!isOnRight){
-				zombie.x+=speed;
-				zombie.zombieCurrentImage = zombieRightImage;
-				if (zombie.x-100>player.x){
-					isOnRight=true;
 					}
+					if (!zombie[i].isOnRight){
+						zombie[i].x+=speed;
+						zombie[i].zombieCurrentImage = zombieRightImage;
+						if (zombie[i].x-100>player.x){
+							zombie[i].isOnRight=true;
+							}
+						}
 				}
 			}
 		}
@@ -231,26 +238,28 @@
 			}
 		}
 		
-		var zombieDie = function(){
-			if(isOnRight){
-				zombie.zombieCurrentImage = zombieDeadImage;
-				zombie.y = canvas.height -180;
-				zombie.x += 50
-			}
-			else{
-				zombie.zombieCurrentImage = zombieDeadRightImage;
-				zombie.y = canvas.height -180;
-				zombie.x -= 50
-			}
-			if (onLayerOne){
-				zombie.y = canvas.height/2+152;
-			}
-			else if (onLayerTwo){
-				zombie.y= canvas.height-42;
-			}
-			else{
-				zombie.y = canvas.height/2+100;
-			}
+		var zombieDie = function(index){
+			
+				if(zombie[index].isOnRight){
+					zombie[index].zombieCurrentImage = zombieDeadImage;
+					zombie[index].y = canvas.height -180;
+					zombie[index].x += 50
+				}
+				else{
+					zombie[index].zombieCurrentImage = zombieDeadRightImage;
+					zombie[index].y = canvas.height -180;
+					zombie[index].x -= 50
+				}
+				if (onLayerOne){
+					zombie[index].y = canvas.height/2+152;
+				}
+				else if (onLayerTwo){
+					zombie[index].y= canvas.height-42;
+				}
+				else{
+					zombie[index].y = canvas.height/2+100;
+				}
+			
 		}
 		
 		var playerDie = function(){
@@ -326,7 +335,7 @@
 		}
 		var drawLife = function(){
 			let place = 0;	
-			for (let i = 1; i <= lifes.number; i++){
+			for (let i = 1; i <= lifes.amount; i++){
 				ctx.drawImage(lifeImage, lifes.animationFrame, 0, 32, 32, place + 15 , 17, 32, 32);
 				place += 32;
 			}
@@ -389,35 +398,21 @@
 
 						
 						if(zombieReady){
-							if (zombie.dead){
-								ctx.drawImage(zombie.zombieCurrentImage,zombie.x,zombie.y);
-							}
-							if(zombie.zombieCurrentImage == zombieImage){
-								if(!zombie.dead){
-									ctx.drawImage(zombieImage,zombie.spriteX,0,81,164,zombie.x,zombie.y,81,164);
-									if(zombie.ticker % zombie.animSpeed == 0 ){
-										zombie.spriteX += 81;
-										if(zombie.spriteX >243){
-											zombie.spriteX = 0;
-										}
+							for(let i = 0; i < numOfZombies;i++){
+									if (zombie[i].dead){
+										ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].x,zombie[i].y);
 									}
-								}
-							}
-							else if(zombie.zombieCurrentImage == zombieRightImage){
-								if(!zombie.dead){
-									ctx.drawImage(zombieRightImage,zombie.spriteX,0,81,164,zombie.x,zombie.y,81,164);
-									if(zombie.ticker % zombie.animSpeed == 0 ){
-										zombie.spriteX += 81;
-										if(zombie.spriteX >243){
-											zombie.spriteX = 0;
-										}
+									else{
+										ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].spriteX,0,81,164,zombie[i].x,zombie[i].y,81,164);
+											if(zombie[i].ticker % zombie[i].animSpeed == 0 ){
+												zombie[i].spriteX += 81;
+												if(zombie[i].spriteX >243){
+													zombie[i].spriteX = 0;
+												}
+											}
 									}
-								}
+									zombie[i].ticker++;
 							}
-							
-
-							zombie.ticker++;
-
 						}
 						if(playerReady && !playerImmune){
 							ctx.drawImage(player.playerCurrentImage,player.x,player.y);
@@ -489,21 +484,40 @@
 	
 	var update = function(){
 		if(!player.dead){
-		if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
-			player.velX--;
-			player.playerCurrentImage = playerLeftImage;
-		}
-		if(68 in keysDown && player.velX < player.speed){		//KeyRIGHT
-			player.velX++;
-			player.playerCurrentImage = playerImage;
-		}
-		if (87 in keysDown && !player.jumping){					//KeyUp
-			player.jumping = true; 
-			player.velY = -player.speed*5;
-		}
-		if(32 in keysDown && !playerImmune){
-			shoot = true; 
-		}
+			if(wasd){
+				if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
+					player.velX--;
+					player.playerCurrentImage = playerLeftImage;
+				}
+				if(68 in keysDown && player.velX < player.speed){		//KeyRIGHT
+					player.velX++;
+					player.playerCurrentImage = playerImage;
+				}
+				if (87 in keysDown && !player.jumping){					//KeyUp
+					player.jumping = true; 
+					player.velY = -player.speed*5;
+				}
+				if(32 in keysDown && !playerImmune){
+					shoot = true; 
+				}
+			}
+			else if(arr){
+				if(37 in keysDown && player.velX > -player.speed){		//KeyLEFT
+					player.velX--;
+					player.playerCurrentImage = playerLeftImage;
+				}
+				if(39 in keysDown && player.velX < player.speed){		//KeyRIGHT
+					player.velX++;
+					player.playerCurrentImage = playerImage;
+				}
+				if (38 in keysDown && !player.jumping){					//KeyUp
+					player.jumping = true; 
+					player.velY = -player.speed*5;
+				}
+				if(32 in keysDown && !playerImmune){
+					shoot = true; 
+				}
+			}
 		}
 		
 					//////////////////////////////////
@@ -514,6 +528,7 @@
 						weapon.weaponYCoord = player.y; 			// wird jedoch erst in der draw Funktion gemalt, wenn shoot == true ist 
 					}
 					else{
+					
 						if(weapon.direction){
 							if(!zombieHit){
 								weapon.weaponXCoord+=weapon.weaponVelX;					
@@ -538,7 +553,8 @@
 								weapon.grav -= 1 ;
 							}
 						}
-				}
+					}
+				
 					
 		if(!player.dead){
 			player.velX*=friction;			
@@ -554,7 +570,7 @@
 								player.x  = 100;
 								player.velX = 0;
 								camera.x += camera.camShift;
-								zombie.x += camera.camShift;
+								for(i in zombie){zombie[i].x += camera.camShift;}
 								platform.x += camera.camShift;
 								platform_second.x += camera.camShift;
 							}
@@ -568,7 +584,7 @@
 							player.x = 350 - playerImage.width;
 							player.velX = 0;
 							camera.x -= camera.camShift;
-							zombie.x -= camera.camShift;
+							for(i in zombie){zombie[i].x -= camera.camShift;}
 							platform.x -= camera.camShift;
 							platform_second.x -= camera.camShift;
 						}
@@ -576,9 +592,15 @@
 									camera.y = (-270 - player.y)/2; 
 									platform.y = 270 + platform.initialY + camera.y;
 									platform_second.y = 270 + platform_second.initialY + camera.y;
-									if(!zombie.dead){zombie.y = 270+ canvas.height/2 + camera.y}	
-									else{zombie.y = 270+ canvas.height/2 + camera.y + 95}		
-								
+									for(i in zombie){
+										if(!zombie[i].dead){
+											zombie[i].y = 270+ canvas.height/2 + camera.y
+										}	
+										else{
+											zombie[i].y = 270+ canvas.height/2 + camera.y + 95
+										}
+											
+									}
 						}
 		}
 
@@ -586,32 +608,33 @@
 				//checking for hit and remaining lifes//
 				////////////////////////////////////////
 				if(!playerImmune){
-					if(player.x + playerImage.width > zombie.x && player.x < zombie.x + 81 && player.y + playerImage.height >= zombie.y && !zombie.dead){
-						lifes.number -= 1;
+				for(i in zombie){
+					if(player.x + playerImage.width > zombie[i].x && player.x < zombie[i].x + 81 && player.y + playerImage.height >= zombie[i].y && !zombie[i].dead){
+						lifes.amount -= 1;
 						playerImmune = true;
 						setTimeout(function(){playerImmune = false}, 2000);
-					if(lifes.number == 0){
+					}
+					if(lifes.amount == 0){
 						player.dead = true; 
 						playerDie();
 					}
+					
 				}
 			
 		}
 		///////////////////
 		//BottleHitCheck///
 		///////////////////
-		if(weapon.weaponXCoord +32 > zombie.x +60 && weapon.weaponXCoord +32 < zombie.x + 81 && weapon.weaponYCoord+ 32 >= zombie.y && shoot && !zombie.dead){	
-			zombie.lifes -= 1;
-			zombieHit = true;
-			if (zombie.lifes == 0){
-				zombie.dead = true;
-				zombieDie();
+		for(i in zombie){
+			if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead){	
+				zombie[i].lifes -= 1;
+				zombieHit = true;
+				if (zombie[i].lifes == 0){
+					zombie[i].dead = true;
+					zombieDie(i);
+				}		
 			}
-			console.log(zombie.lifes)	
-			
-			
 		}
-		
 		////////////////////////////
 		////player in y pos check///
 		////////////////////////////
@@ -653,15 +676,24 @@
 			onLayerOne = false;
 		}
 		/*Second Platform Check*/
-		if(camera.x - (player.x+playerImage.width) < -(platform_second.x- camera.x +20) && camera.x - player.x >-(platform_second.x + platformSecondImage.width - 20 -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
+		if(camera.x - (player.x+playerImage.width) < -(platform_second.x- camera.x +20) && camera.x - player.x >-(platform_second.x + platformSecondImage.width - 30 -camera.x) && player.y+playerImage.height < platform_second.y && player.y+playerImage.height > platform_second.y -20 && player.velY > 0){
 				onLayerTwo = true;	
 		}
-		else if (!(camera.x - (player.x+playerImage.width) < -(platform_second.x + 20 -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width - 20 -camera.x))){
+		else if (!(camera.x - (player.x+playerImage.width) < -(platform_second.x + 20 -camera.x) && camera.x - player.x > -(platform_second.x +platformSecondImage.width - 30 -camera.x))){
 			onLayerTwo = false;
 		}		
 		
-	zombieMove(1);
+	zombieMove(2);
 	trackWeaponDirection();
+	
+		if(loaded){
+			document.getElementById('arr').onclick = function(){if(!arr || wasd){arr = true;wasd = false,
+				document.getElementById('currentLayout').innerHTML = "currentLayout:ARROWS"
+			}}
+			document.getElementById('wasd').onclick = function(){if(!wasd || arr){wasd = true;arr = false,
+						document.getElementById('currentLayout').innerHTML = "currentLayout:WASD"
+			}}
+		}
 	}
 	
 	////////////////////////////
