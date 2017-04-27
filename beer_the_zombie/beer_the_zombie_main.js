@@ -134,10 +134,16 @@
 								platformSecondImage.onload = function(){
 									platformSecondReady = true;
 								}	
-								platformSecondImage.src = "images/markise_1.png";	
+								platformSecondImage.src = "images/markise_1.png";
+
+	//////////////////////
+	////////SOUNDS////////
+	//////////////////////		
+	
+	var shot = new Audio();
+	shot.src = "BottleShot.m4a"
 	
 	//////////////////////
-	
 	//////OBJECTS/////////
 	//////////////////////	
 	for(let i = 0; i < numOfZombies; i++){
@@ -538,6 +544,7 @@
 				}
 				if(32 in keysDown && !playerImmune){
 					shoot = true; 
+					shot.play();
 				}
 			}
 			else if(arr){
@@ -555,6 +562,7 @@
 				}
 				if(32 in keysDown && !playerImmune){
 					shoot = true; 
+					shot.play();
 				}
 			}
 		}
