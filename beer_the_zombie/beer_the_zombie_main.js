@@ -613,8 +613,7 @@
 			}
 			else{player.moving=false;}
 			if(player.velY != gravity){player.inAir = true}else{player.inAir = false;}
-			
-			
+
 						///////////////////////////////////////
 						////////////Camera FOllowing///////////
 						///////////////////////////////////////
@@ -628,7 +627,7 @@
 								platform.x += camera.camShift;
 								platform_second.x += camera.camShift;
 							}
-							else {
+							else { 				//Left Wall Clamping
 								player.x = 100;
 								player.velX = 0;
 								camera.x =0;
@@ -636,14 +635,24 @@
 						}
 						else{player.onLeftWall = false;}
 						
-						if(player.x + 64 > 350){ // Kamera Bewegung X rechts
-							player.x = 350 - 64;
-							player.velX = 0;
-							camera.x -= camera.camShift;
-							player.onRightWall=true;
-							for(i in zombie){zombie[i].x -= camera.camShift;}
-							platform.x -= camera.camShift;
-							platform_second.x -= camera.camShift;
+						if(player.x + 64 > 350 && player.x + 64 < 360){ // Kamera Bewegung X rechts
+							
+							if(camera.x > -5000 + canvas.width){
+								player.x = 350 - 64;
+								player.velX = 0;
+								camera.x -= camera.camShift;
+								player.onRightWall=true;
+								for(i in zombie){zombie[i].x -= camera.camShift;}
+								platform.x -= camera.camShift;
+								platform_second.x -= camera.camShift;
+							}
+						}
+						else if (player.x > 360){					// Right Wall Clamping
+								camera.x = -5000 + canvas.width;
+								if(player.x >= 622){
+									player.velx = 0;
+									player.x = 622;
+								}
 						}
 						else{player.onRightWall = false;}
 						if(player.jumping || (!onLayerOne && !onLayerTwo &&!(player.y > canvas.height/2))){	//Kamera Bewegung Y					
