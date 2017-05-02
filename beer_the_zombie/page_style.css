@@ -1,6 +1,6 @@
 #ctx{
 
-    margin-left: 20%;
+    margin:auto;
     display: block;
     width: 920px;
     height: 530px;
@@ -18,8 +18,12 @@ li {
 	list-style-type:none;
 	display:block;
 }
-.options{
+#options{
 	display:block;
 	float:left;
+	
 		
+}
+body{
+//	overflow-y:hidden;
 }
