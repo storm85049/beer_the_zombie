@@ -141,7 +141,7 @@
 	//////////////////////		
 	
 	var shot = new Audio();
-	shot.src = "BottleShot.m4a"
+	shot.src = "sounds/BottleShot.m4a"
 	
 	//////////////////////
 	//////OBJECTS/////////
