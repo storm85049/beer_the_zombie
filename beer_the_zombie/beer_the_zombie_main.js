@@ -201,6 +201,7 @@
 
 	}
 	var lifes = {
+		totalAmount: 3,
 		amount: 3,
 		ticker: 0,
 		animationFrame: 0,
@@ -370,7 +371,7 @@
 				place += 32;
 			}
 			place = 0;
-			for (let i = 0; i < 3; i++){
+			for (let i = 0; i < lifes.totalAmount; i++){
 				ctx.globalAlpha = 0.3;
 				ctx.drawImage(lifeImage, 0, 0, 32, 32, place + 15 , 17, 32, 32);
 				ctx.globalAlpha = 1;
