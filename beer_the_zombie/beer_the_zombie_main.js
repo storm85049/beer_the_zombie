@@ -207,14 +207,15 @@
 			platformLevelOne[4] = {x:camera.x+870,y:-155,initialY:-155,platformImage:markiseYellowImage,onLayerTwo:false};
 			platformLevelOne[5] = {x:camera.x+1600,y:-100,initialY:-100,platformImage:markiseGreyImage,onLayerTwo:false};
 			platformLevelOne[6] = {x:camera.x+1800,y:-100,initialY:-100,platformImage:markiseBlueImage,onLayerTwo:false};
-			platformLevelOne[7] = {x:camera.x+3160,y:15,initialY:15,platformImage:markiseImage,onLayerTwo:false};
+			platformLevelOne[7] = {x:camera.x+3160,y:30,initialY:30,platformImage:markiseImage,onLayerTwo:false};
 			platformLevelOne[8] = {x:camera.x+3330,y:-155,initialY:-155,platformImage:markiseImage,onLayerTwo:false};
 			platformLevelOne[9] = {x:camera.x+2985,y:-155,initialY:-155,platformImage:markiseImage,onLayerTwo:false};
 			
 		var coins = new Array();
+		
 		for(i in platformLevelOne){
 				coins[i] = {x: platformLevelOne[i].x + markiseImage.width/2 -20, 
-							y: platformLevelOne[i].y -20,ticker:0, spriteX:0, initialY:platformLevelOne[i].y - 20};
+							y: platformLevelOne[i].y -50,ticker:0, spriteX:0, initialY:platformLevelOne[i].y - 50};
 			}
 
 			
@@ -344,11 +345,11 @@
 			var playerDie = function(){
 			if (player.playerCurrentImage == playerImage){
 				player.playerCurrentImage = playerDeadImage;
-				player.y = canvas.height-120; 
+				player.y = camera.y +canvas.height+150; 
 			}
 			else if (player.playerCurrentImage == playerLeftImage){
 				player.playerCurrentImage = playerDeadRightImage;
-				player.y = canvas.height-120;
+				player.y = camera.y +canvas.height+150; 
 			}
 				
 			}
@@ -628,7 +629,7 @@
 					}
 					if (87 in keysDown && !player.jumping){					//KeyUp
 						player.jumping = true; 
-						player.velY = -player.speed*5;
+						player.velY = -player.speed*4.6;
 					}
 					if(32 in keysDown && !playerImmune){
 						shoot = true; 
@@ -649,7 +650,7 @@
 					}
 					if (38 in keysDown && !player.jumping){					//KeyUp
 						player.jumping = true; 
-						player.velY = -player.speed*5;
+						player.velY = -player.speed*4.6;
 					}
 					if(32 in keysDown && !playerImmune){
 						shoot = true; 
@@ -774,7 +775,7 @@
 					////////////////////////////////////////
 					if(!playerImmune){
 					for(i in zombie){
-						if(player.x + 64 > zombie[i].x +30 && player.x < zombie[i].x + 50 && player.y + playerImage.height >= zombie[i].y && !zombie[i].dead){
+						if(player.x + 64 > zombie[i].x +30 && player.x < zombie[i].x + 50 && player.y + playerImage.height-20>= zombie[i].y && !zombie[i].dead){
 							lifes.amount -= 1;
 							playerImmune = true;
 							setTimeout(function(){playerImmune = false}, 2000);
@@ -805,8 +806,7 @@
 			////////////////////////////
 			////player in y pos check///
 			////////////////////////////
-
-			if(checkOnPlatformGround(0)){
+			if(checkOnPlatformGround(0) &&!player.dead){
 				if(player.y +playerImage.height>= checkOnPlatformGround(1)+20){
 					player.y = checkOnPlatformGround(1)-playerImage.height+20;
 					player.jumping = false;
@@ -814,7 +814,7 @@
 
 				}
 			}
-			else if(checkOnPlatformLevelOne(0)){
+			else if(checkOnPlatformLevelOne(0)&&!player.dead){
 					if(player.y + playerImage.height>= checkOnPlatformLevelOne(1)+20){
 					player.y = checkOnPlatformLevelOne(1)- playerImage.height+20;
 					player.jumping = false;
@@ -831,7 +831,7 @@
 			////////////////////////////
 			//Weapon Ground Hit Check///
 			////////////////////////////
-			if(weapon.weaponYCoord + 32> canvas.height/2 + playerImage.height){
+			if(weapon.weaponYCoord + 32> camera.y +canvas.height+180){
 				weapon.grav = 3;
 				shoot = false;	
 				resetWeapon();
@@ -867,7 +867,7 @@
 			/*coinHitCheck*/
 			for(i in coins){
 				if(camera.x -(player.x + 64) < -(coins[i].x - camera.x) && camera.x - player.x > -(coins[i].x+43-camera.x)&&
-				player.y+playerImage.height < coins[i].y +coinImage.height){
+				player.y+playerImage.height > coins[i].y && player.y< coins[i].y + coinImage.height){
 					coinsCollected++;
 					delete coins[i];
 				}
