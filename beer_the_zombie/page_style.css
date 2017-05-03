@@ -18,6 +18,9 @@ li {
 	list-style-type:none;
 	display:block;
 }
+.sliders{
+	width:50px;
+}
 #options{
 	display:block;
 	float:left;
