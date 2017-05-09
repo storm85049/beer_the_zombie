@@ -174,7 +174,7 @@
 		//////////////////////		
 		
 		var shot = new Audio();
-		shot.src = "sounds/BottleShot.m4a"
+		shot.src = "sounds/Woosh.wav"
 		var song = new Audio("sounds/song.mp3");
 		song.play();
 		
@@ -627,7 +627,7 @@
 						player.velX++;
 						player.playerCurrentImage = playerImage;
 					}
-					if (87 in keysDown && !player.jumping){					//KeyUp
+					if (87 in keysDown && !player.jumping && player.velY <= 0){					//KeyUp
 						player.jumping = true; 
 						player.velY = -player.speed*4.6;
 					}
@@ -648,7 +648,7 @@
 						player.velX++;
 						player.playerCurrentImage = playerImage;
 					}
-					if (38 in keysDown && !player.jumping){					//KeyUp
+					if (38 in keysDown && !player.jumping && player.velY <= 0){					//KeyUp
 						player.jumping = true; 
 						player.velY = -player.speed*4.6;
 					}
