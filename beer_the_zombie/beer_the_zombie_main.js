@@ -185,7 +185,7 @@
 			zombie[i] = {		//x:Math.floor(Math.random()*canvas.width+canvas.width/2)
 								x:(i+1)*500,y:canvas.height/2,
 								dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
-								zombieCurrentImage: zombieImage,lifes:3
+								zombieCurrentImage: zombieImage,lifes:3, gotHit: false, blinkTicker:0
 			}
 		}
 		var camera = {
@@ -214,7 +214,7 @@
 		var coins = new Array();
 		
 		for(i in platformLevelOne){
-				coins[i] = {x: platformLevelOne[i].x + markiseImage.width/2 -20, 
+				coins[i] = {x: platformLevelOne[i].x + +60, 
 							y: platformLevelOne[i].y -50,ticker:0, spriteX:0, initialY:platformLevelOne[i].y - 50};
 			}
 
@@ -268,26 +268,64 @@
 			///////////////////////////////////////
 			
 			var zombieMove = function(speed){
-				for(i in zombie){
-					if (!zombie[i].dead){
-						if(zombie[i].isOnRight){
+			for(i in zombie){
+				if (!zombie[i].dead){
+					if(zombie[i].isOnRight){
+						if(!zombie[i].gotHit){
 							zombie[i].x-=speed;
-							zombie[i].zombieCurrentImage = zombieImage;
-							if (zombie[i].x+100<=player.x){
-								zombie[i].isOnRight=false;
-							}
-
 						}
-						if (!zombie[i].isOnRight){
+						else{
 							zombie[i].x+=speed;
-							zombie[i].zombieCurrentImage = zombieRightImage;
-							if (zombie[i].x-100>player.x){
-								zombie[i].isOnRight=true;
-								}
-							}
+						}
+						zombie[i].zombieCurrentImage = zombieImage;
+						if (zombie[i].x+100<=player.x){
+							zombie[i].isOnRight=false;
+						}
 					}
+
+					else if (!zombie[i].isOnRight){
+								if(!zombie[i].gotHit){
+							zombie[i].x+=speed;
+						}
+						else{
+							zombie[i].x-=speed;
+						}
+							zombie[i].zombieCurrentImage = zombieRightImage;
+						}
+						if (zombie[i].x-100>player.x){
+							zombie[i].isOnRight=true;
+							}
+						}
 				}
 			}
+			var zombieBlink = function(index){
+				console.log("hi");
+								 if(!zombie[index].dead && zombie[index].gotHit){
+											if(zombie[index].blinkTicker >= 10){
+												zombie[index].gotHit = false;
+												zombie[index].blinkTicker = 0;
+											}						
+											if (zombie[index].blinkTicker % 5 > 0 && zombie[index].blinkTicker % 5 < 3) {
+												ctx.globalAlpha = 0.4;	
+												ctx.drawImage(zombie[index].zombieCurrentImage, zombie[index].spriteX, 0,81,164,zombie[index].x,zombie[index].y, 81, 164);
+												ctx.globalAlpha = 1.0;
+											}												
+										else {
+											ctx.drawImage(zombie[index].zombieCurrentImage, zombie[index].spriteX, 0,81,164,zombie[index].x,zombie[index].y, 81, 164);
+												if(zombie[index].ticker % zombie[index].animSpeed == 0 ){
+														zombie[index].spriteX += 81;
+											}
+										}
+											if(zombie[index].ticker % zombie[index].animSpeed == 0){
+														zombie[index].spriteX += 81;
+															if(zombie[index].spriteX > 81*3){
+																zombie[index].spriteX = 0;
+																}
+															}
+											zombie[index].blinkTicker ++;
+											zombie[index].ticker++;		
+								}
+								}
 			var blink = function(){
 				player.ticker++;
 				if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
@@ -488,20 +526,24 @@
 							}
 
 							if(zombieReady){
-								for(let i = 0; i < numOfZombies;i++){
+								for(i in zombie){
 										if (zombie[i].dead){
 											ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].x,zombie[i].y);
+
 										}
-										else{
+										else if (!zombie[i].dead && !zombie[i].gotHit){
 											ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].spriteX,0,81,164,zombie[i].x,zombie[i].y,81,164);
-												if(zombie[i].ticker % zombie[i].animSpeed == 0 ){
+												if(zombie[i].ticker % zombie[i].animSpeed == 0){
 													zombie[i].spriteX += 81;
-													if(zombie[i].spriteX >243){
+													if(zombie[i].spriteX >81*3) {
 														zombie[i].spriteX = 0;
 													}
 												}
+											zombie[i].ticker++;											
+											}
+										else if (zombie[i].gotHit){
+											zombieBlink(i);
 										}
-										zombie[i].ticker++;
 								}
 							}
 							if(coinReady){
@@ -794,9 +836,10 @@
 			//BottleHitCheck///
 			///////////////////
 			for(i in zombie){
-				if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead){	
+				if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead && !zombieHit){	
 					zombie[i].lifes -= 1;
 					zombieHit = true;
+					zombie[i].gotHit = true;
 					if (zombie[i].lifes == 0){
 						zombie[i].dead = true;
 						zombieDie(i);
