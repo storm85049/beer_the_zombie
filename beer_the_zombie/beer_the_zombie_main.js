@@ -6,7 +6,7 @@
 		
 		var gravity = 0.6,	
 			friction = 0.8,
-			weaponChoice = 0,
+			weaponChoice = 1,
 			numOfZombies = 5;
 			coinsCollected = 0;
 		var shoot = false,
@@ -169,6 +169,13 @@
 										coinReady = true;
 									}	
 									coinImage.src = "images/coin_image.png";
+									var explosionReady = false;
+									var explosionImage = new Image();
+									explosionImage.onload = function(){
+										explosionReady = true;
+									}	
+									explosionImage.src = "images/explo.png";	
+
 		//////////////////////
 		////////SOUNDS////////
 		//////////////////////		
@@ -185,7 +192,7 @@
 			zombie[i] = {		//x:Math.floor(Math.random()*canvas.width+canvas.width/2)
 								x:(i+1)*500,y:canvas.height/2,
 								dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
-								zombieCurrentImage: zombieImage,lifes:3, gotHit: false, blinkTicker:0
+								zombieCurrentImage: zombieImage,lifes:5, gotHit: false, blinkTicker:0
 			}
 		}
 		var camera = {
@@ -230,7 +237,11 @@
 			ticker:0,
 			weaponSpriteImage:canSpriteImage,
 			rotateSpeed:5, //Bestimmmt, wie schwer die Flasche ist. 
-			direction: true
+			direction: true,
+			onGround:false,
+			hitX:0,
+			hitY:0,
+			hitYfirst:0
 
 		}
 		var player = {
@@ -259,6 +270,13 @@
 			animationFrame: 0,
 			pause: false
 		}
+		var explosion = {
+			spriteX:0,
+			spriteY:0,
+			ticker:0,
+			animating:false
+	
+		}
 			var keysDown = {};
 		
 
@@ -266,7 +284,17 @@
 			///////////////////////////////////////
 			/////////////ALL FUNCTIONS/////////////
 			///////////////////////////////////////
-			
+			var checkInFire = function(){
+				for(i in zombie){
+					if(weapon.hitX < zombie[i].x && weapon.hitX +100 > zombie[i].x && !player.dead){
+						zombie[i].lifes -= 5;
+						if (zombie[i].lifes <= 0){
+							zombie[i].dead = true;
+							zombieDie(i);
+						}	
+					}
+				}
+			}			
 			var zombieMove = function(speed){
 			for(i in zombie){
 				if (!zombie[i].dead){
@@ -299,7 +327,6 @@
 				}
 			}
 			var zombieBlink = function(index){
-				console.log("hi");
 								 if(!zombie[index].dead && zombie[index].gotHit){
 											if(zombie[index].blinkTicker >= 10){
 												zombie[index].gotHit = false;
@@ -535,7 +562,7 @@
 											ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].spriteX,0,81,164,zombie[i].x,zombie[i].y,81,164);
 												if(zombie[i].ticker % zombie[i].animSpeed == 0){
 													zombie[i].spriteX += 81;
-													if(zombie[i].spriteX >81*3) {
+													if(zombie[i].spriteX >243) {
 														zombie[i].spriteX = 0;
 													}
 												}
@@ -592,11 +619,28 @@
 									}
 								}
 							}
+							if(explosionReady && weaponChoice == 4 && (weapon.onGround || explosion.animating) && !player.dead ){
+										explosion.animating = true;
+										ctx.drawImage(explosionImage,explosion.spriteX,explosion.spriteY,200,200,weapon.hitX,weapon.hitY,200,200);
+										explosion.ticker++;
+										if(explosion.ticker % 3 == 0){
+											explosion.spriteX += 200;
+											if(explosion.spriteX > 800){
+												explosion.spriteX = 0;
+												explosion.spriteY += 200;
+											}
+											if(explosion.spriteY > 600){
+												explosion.spriteY = 0;
+												explosion.animating = false;
+											}
+										}
+									}
 
 							
 							drawWeaponSelect();
 							animationLife();
 							drawLife();
+							
 							if((camera.x-player.x) < -4360 && (camera.x-player.x) > - 4560){
 								ctx.beginPath();
 								ctx.font ="20px Helvetica";
@@ -763,7 +807,7 @@
 									for (i in platformGround){platformGround[i].x += camera.camShift;}
 									for(i in platformLevelOne){platformLevelOne[i].x += camera.camShift;}
 									for(i in coins){coins[i].x += camera.camShift;}
-									
+									weapon.hitX += camera.camShift;
 								}
 								else { 				//Left Wall Clamping
 									player.x = 100;
@@ -784,6 +828,7 @@
 									for (i in platformGround){platformGround[i].x -= camera.camShift;}
 									for(i in platformLevelOne){platformLevelOne[i].x -= camera.camShift;}
 									for(i in coins){coins[i].x -= camera.camShift;}
+									weapon.hitX -= camera.camShift;
 								}
 							}
 							else if (player.x > 350){					// Right Wall Clamping
@@ -796,6 +841,7 @@
 							else{player.onRightWall = false;}
 							if(player.jumping || (!checkOnPlatformGround() && !checkOnPlatformLevelOne() &&!(player.y > canvas.height/2))){	//Kamera Bewegung Y					
 										camera.y = (-270-player.y)/2; 
+										weapon.hitY = 270 + weapon.hitYfirst + camera.y;
 										for (i in platformGround){platformGround[i].y = 270 + platformGround[i].initialY + camera.y;}
 										for(i in platformLevelOne){platformLevelOne[i].y = 270 + platformLevelOne[i].initialY + camera.y;}
 										for(i in coins){coins[i].y = (270+coins[i].initialY+camera.y);}
@@ -836,15 +882,20 @@
 			//BottleHitCheck///
 			///////////////////
 			for(i in zombie){
-				if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead && !zombieHit){	
-					zombie[i].lifes -= 1;
-					zombieHit = true;
-					zombie[i].gotHit = true;
-					if (zombie[i].lifes == 0){
-						zombie[i].dead = true;
-						zombieDie(i);
-					}		
-				}
+					if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead && !zombieHit){	
+						zombieHit = true;
+						zombie[i].gotHit = true;
+						if(weaponChoice == 1){
+							zombie[i].lifes -= 2;
+						}
+						else if (weaponChoice == 2 ){
+							zombie[i].lifes -= 1.25;
+						}
+						if (zombie[i].lifes <= 0){
+							zombie[i].dead = true;
+							zombieDie(i);
+						}		
+					}
 			}
 			////////////////////////////
 			////player in y pos check///
@@ -874,12 +925,20 @@
 			////////////////////////////
 			//Weapon Ground Hit Check///
 			////////////////////////////
-			if(weapon.weaponYCoord + 32> camera.y +canvas.height+180){
+		if(weapon.weaponYCoord + 32> camera.y +canvas.height+180){	
+				weapon.hitX = weapon.weaponXCoord -  80;
+				weapon.hitY = weapon.weaponYCoord - 100;
+				weapon.hitYfirst = weapon.hitY;
 				weapon.grav = 3;
-				shoot = false;	
+				weapon.onGround = true;
+				shoot = false;
+				if(weaponChoice == 4){
+					checkInFire();
+				}
 				resetWeapon();
 
 			}
+			else{weapon.onGround = false;}
 			
 			//First Platform Check
 			for(i in platformGround){
