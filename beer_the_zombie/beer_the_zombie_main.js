@@ -175,6 +175,20 @@
 										explosionReady = true;
 									}	
 									explosionImage.src = "images/explo.png";	
+										var zombieSpriteHitReady = false;
+									var zombieSpriteHitImage = new Image();
+									zombieSpriteHitImage.onload = function(){
+										zombieSpriteHitReady = true;
+									}	
+									zombieSpriteHitImage.src = "images/zombie_sprite_hit.png";											
+									var zombieSpriteRightHitReady = false;
+									var zombieSpriteRightHitImage = new Image();
+									zombieSpriteRightHitImage.onload = function(){
+										zombieSpriteRightHitReady = true;
+									}	
+									zombieSpriteRightHitImage.src = "images/zombie_sprite_right_hit.png";	
+	
+
 
 		//////////////////////
 		////////SOUNDS////////
@@ -300,25 +314,29 @@
 				if (!zombie[i].dead){
 					if(zombie[i].isOnRight){
 						if(!zombie[i].gotHit){
+							zombie[i].zombieCurrentImage = zombieImage;
 							zombie[i].x-=speed;
 						}
 						else{
+							zombie[i].zombieCurrentImage = zombieSpriteHitImage
 							zombie[i].x+=speed;
 						}
-						zombie[i].zombieCurrentImage = zombieImage;
+						
 						if (zombie[i].x+100<=player.x){
 							zombie[i].isOnRight=false;
 						}
 					}
 
 					else if (!zombie[i].isOnRight){
-								if(!zombie[i].gotHit){
+							if(!zombie[i].gotHit){								
 							zombie[i].x+=speed;
+						zombie[i].zombieCurrentImage = zombieRightImage;
 						}
 						else{
+							zombie[i].zombieCurrentImage = zombieSpriteRightHitImage 
 							zombie[i].x-=speed;
 						}
-							zombie[i].zombieCurrentImage = zombieRightImage;
+						zombie[i].zombieCurrentImage = zombieRightImage;
 						}
 						if (zombie[i].x-100>player.x){
 							zombie[i].isOnRight=true;
@@ -569,6 +587,7 @@
 											zombie[i].ticker++;											
 											}
 										else if (zombie[i].gotHit){
+											
 											zombieBlink(i);
 										}
 								}
