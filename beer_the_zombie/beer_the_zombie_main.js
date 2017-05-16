@@ -204,7 +204,8 @@
 		
 		var shot = new Audio("sounds/Woosh.wav");
 		var song = new Audio("sounds/song.mp3");
-		var coinSound = new Audio("sounds/coin_pickup.wav")
+		var coinSound = new Audio("sounds/coin_pickup.wav");
+		var zombieHitSound = new Audio("sounds/zombieHitSound.wav");
 		//song.play();
 		
 		//////////////////////
@@ -929,6 +930,7 @@
 			for(i in zombie){
 					if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead && !zombieHit){	
 						zombieHit = true;
+						zombieHitSound.play();
 						zombie[i].gotHit = true;
 						if(weaponChoice == 1){
 							zombie[i].lifes -= 2;
