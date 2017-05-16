@@ -7,7 +7,7 @@
 		var gravity = 0.6,	
 			friction = 0.8,
 			weaponChoice = 1,
-			numOfZombies = 5;
+			numOfZombies = 15;
 			coinsCollected = 0;
 		var shoot = false,
 			playerImmune = false,
@@ -212,7 +212,7 @@
 		//////////////////////	
 		for(let i = 0; i < numOfZombies; i++){
 			zombie[i] = {		//x:Math.floor(Math.random()*canvas.width+canvas.width/2)
-								x:(i+1)*500,y:canvas.height/2,
+								x: Math.floor(Math.random()*(4000) + 500), newSpawnX: Math.floor(Math.random()*(3000) + 1000), y:canvas.height/2,
 								dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
 								zombieCurrentImage: zombieImage,lifes:5, gotHit: false, blinkTicker:0
 			}
@@ -317,8 +317,18 @@
 					}
 				}
 			}			
+			var spawnZombieleft = function(){
+				for (i in zombie){
+					if(i % (numOfZombies/5) == 0){
+						zombie[i].x = Math.floor(Math.random()*(-500 + 100) - 100);
+					}
+				}
+			}
 			var zombieMove = function(speed){
 			for(i in zombie){
+				if(zombie[i].x < -500 && !zombie[i].dead && i % (numOfZombies/5) != 0){
+					zombie[i].x = zombie[i].newSpawnX;
+				}
 				if (!zombie[i].dead){
 					if(zombie[i].isOnRight){
 						if(!zombie[i].gotHit){
@@ -1043,7 +1053,7 @@
 		render();
 		requestAnimationFrame(main);
 	}
-
+	spawnZombieleft();
 	main();
 
 
