@@ -1,12 +1,13 @@
+
 		var canvas = document.getElementById('ctx');
 		var ctx = canvas.getContext("2d");
-		canvas.width = 920;
+		canvas.width = 	920;
 		canvas.height = 530;
 		
 		var gravity = 0.6,	
 			friction = 0.8,
 			weaponChoice = 1,
-			numOfZombies = 15;
+			numOfZombies = 5;
 			coinsCollected = 0;
 		var shoot = false,
 			playerImmune = false,
@@ -15,6 +16,7 @@
 			loaded = false,
 			zombieHit =false,
 			interaction = false;
+			dayMode = true;
 		var zombie = new Array();
 
 		window.onload = function(){loaded=true;}
@@ -25,7 +27,12 @@
 										bgReady = true;
 									}	
 									bgImage.src = "images/street_bg.png";
-									
+									var bgNightReady = false;
+									var bgNightImage = new Image();
+									bgNightImage.onload = function(){
+										bgNightReady = true;
+									}	
+									bgNightImage.src = "images/street_bg_night.png";
 									var playerReady = false;
 									var playerImage = new Image();
 										playerImage.onload = function(){
@@ -195,21 +202,17 @@
 		////////SOUNDS////////
 		//////////////////////		
 		
-		var shot = new Audio();
-		shot.src = "sounds/Woosh.wav"
-
+		var shot = new Audio("sounds/Woosh.wav");
 		var song = new Audio("sounds/song.mp3");
-		song.play();
-
-		var coinPickup = new Audio();
-		coinPickup.src = "sounds/Coin Pickup.wav";
+		var coinSound = new Audio("sounds/coin_pickup.wav")
+		//song.play();
 		
 		//////////////////////
 		//////OBJECTS/////////
 		//////////////////////	
 		for(let i = 0; i < numOfZombies; i++){
-			zombie[i] = {
-								x: Math.floor(Math.random()*(4000) + 500), newSpawnX: Math.floor(Math.random()*(3000) + 1000), y:canvas.height/2,
+			zombie[i] = {		//x:Math.floor(Math.random()*canvas.width+canvas.width/2)
+								x:(i+1)*500,y:canvas.height/2,
 								dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
 								zombieCurrentImage: zombieImage,lifes:5, gotHit: false, blinkTicker:0
 			}
@@ -268,8 +271,8 @@
 			x:100,			
 			y:canvas.height/2,
 			jumping:false,
-			velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verändert
-			velY:0,			//GLeiches wie für velX
+			velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verÃ¤ndert
+			velY:0,			//GLeiches wie fÃ¼r velX
 			dead:false,
 			ticker: 0,
 			playerCurrentImage:playerImage,
@@ -313,19 +316,9 @@
 						}	
 					}
 				}
-			}	
-			var spawnZombieleft = function(){
-				for (i in zombie){
-					if(i % (numOfZombies/5) == 0){
-						zombie[i].x = Math.floor(Math.random()*(-500 + 100) - 100);
-					}
-				}
-			}
+			}			
 			var zombieMove = function(speed){
 			for(i in zombie){
-				if(zombie[i].x < -500 && !zombie[i].dead && i % (numOfZombies/5) != 0){
-					zombie[i].x = zombie[i].newSpawnX;
-				}
 				if (!zombie[i].dead){
 					if(zombie[i].isOnRight){
 						if(!zombie[i].gotHit){
@@ -571,8 +564,11 @@
 						////RENDER FUNCTION DRAWING ALL PICTURES//
 						//////////////////////////////////////////
 							var render = function(){
-							if(bgReady){
+							if(bgReady && dayMode){
 								ctx.drawImage(bgImage,camera.x,camera.y);
+							}
+							else if(bgNightReady && !dayMode){
+								ctx.drawImage(bgNightImage,camera.x,camera.y);
 							}
 							if(tonneReady){
 								for(i in platformGround){
@@ -779,7 +775,6 @@
 				}
 			}
 
-
 						//////////////////////////////////
 						/////////BottleShooting///////////
 						//////////////////////////////////
@@ -837,11 +832,15 @@
 									player.velX = 0;
 									player.onLeftWall = true;
 									camera.x += camera.camShift;
+									if(!player.moving){
+										weapon.weaponXCoord += camera.camShift;
+									}
 									for(i in zombie){zombie[i].x += camera.camShift;}
 									for (i in platformGround){platformGround[i].x += camera.camShift;}
 									for(i in platformLevelOne){platformLevelOne[i].x += camera.camShift;}
 									for(i in coins){coins[i].x += camera.camShift;}
 									weapon.hitX += camera.camShift;
+									
 								}
 								else { 				//Left Wall Clamping
 									player.x = 100;
@@ -858,6 +857,9 @@
 									player.velX = 0;
 									camera.x -= camera.camShift;
 									player.onRightWall=true;
+									if(!player.moving){
+										weapon.weaponXCoord -= camera.camShift;
+									}
 									for(i in zombie){zombie[i].x -= camera.camShift;}
 									for (i in platformGround){platformGround[i].x -= camera.camShift;}
 									for(i in platformLevelOne){platformLevelOne[i].x -= camera.camShift;}
@@ -879,7 +881,6 @@
 										for (i in platformGround){platformGround[i].y = 270 + platformGround[i].initialY + camera.y;}
 										for(i in platformLevelOne){platformLevelOne[i].y = 270 + platformLevelOne[i].initialY + camera.y;}
 										for(i in coins){coins[i].y = (270+coins[i].initialY+camera.y);}
-				
 										for(i in zombie){
 											if(!zombie[i].dead){
 												zombie[i].y = 270+ canvas.height/2 + camera.y ;
@@ -1004,8 +1005,8 @@
 			for(i in coins){
 				if(camera.x -(player.x + 64) < -(coins[i].x - camera.x) && camera.x - player.x > -(coins[i].x+43-camera.x)&&
 				player.y+playerImage.height > coins[i].y && player.y< coins[i].y + coinImage.height){
+					coinSound.play();
 					coinsCollected++;
-					coinPickup.play();
 					delete coins[i];
 				}
 			}
@@ -1021,6 +1022,9 @@
 				document.getElementById('wasd').onclick = function(){if(!wasd || arr){wasd = true;arr = false,
 						document.getElementById('currentLayout').innerHTML = "currentLayout:WASD"
 				}}
+				document.getElementById('myonoffswitch').onchange = function(){
+					dayMode ? dayMode = false : dayMode = true;
+				}
 			}
 				song.volume = document.getElementById('volume').value/100;
 				shot.volume = document.getElementById('volumeSFX').value/100;
@@ -1037,9 +1041,9 @@
 	var main = function(){
 		update(); 
 		render();
-		requestAnimationFrame(main);		
+		requestAnimationFrame(main);
 	}
-	spawnZombieleft();
+
 	main();
 
 
