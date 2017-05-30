@@ -324,7 +324,7 @@
 					if (player.moving){
 						player.burpTicker = 0;
 					}
-					if (player.burpTicker >= 1200){
+					if (player.burpTicker >= 1900){
 						superBurp.play();
 						player.burpTicker = 0;
 					}
