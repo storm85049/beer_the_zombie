@@ -213,7 +213,7 @@
 									shopBGImage.onload = function(){
 										shopBGReady = true;
 									}
-									shopBGImage.src = "images/shop_bg.png";
+									shopBGImage.src = "images/shop_bottles.png";
 
 
 		//////////////////////
@@ -355,10 +355,10 @@
 			var openShop = function(){
 				shopIsOpen = true;
 				//canvas.setAttribute("style","-webkit-filter:blur(10px)");
-				ctx.drawImage(shopBGImage,20,20);
-				ctx.fillStyle = "rgb(250,250,250)";
-				ctx.drawImage(lifeImage,0,0,32,32,100,100,32,32);				
-				ctx.fillText("refill all lifes -> cost 5 coins",150,120);
+				ctx.drawImage(shopBGImage,50,50);
+			
+							
+				
 			}
 			
 			var zombieMove = function(speed){
@@ -842,7 +842,7 @@
 						}
 						
 					}
-					if(69 in keysDown && interaction){
+					if(69 in keysDown/* && interaction*/){
 						sessionStorage.setItem("coins", coinsCollected);
 						sessionStorage.setItem("lifes",lifes.amount);
 						sessionStorage.setItem("current",2);
