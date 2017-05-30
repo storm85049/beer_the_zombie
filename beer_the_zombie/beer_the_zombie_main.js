@@ -205,7 +205,17 @@
 		var shot = new Audio("sounds/Woosh.wav");
 		var song = new Audio("sounds/song.mp3");
 		var coinSound = new Audio("sounds/coin_pickup.wav");
-		var zombieHitSound = new Audio("sounds/zombieHitSound.wav");
+		var zombieHitSound = new Audio("sounds/zombieHitSound.m4a");
+		var zombieHitSound2 = new Audio("sounds/zombieHitSound2.m4a");
+		var zombieHitSound3 = new Audio("sounds/zombieHitSound3.m4a");
+		var zombieHitSound4 = new Audio("sounds/zombieHitSound4.m4a");
+		var superBurp = new Audio("sounds/superBurp.m4a");
+
+		var zombieHitSounds = new Array();
+			zombieHitSounds[0] = zombieHitSound;
+			zombieHitSounds[1] = zombieHitSound2;
+			zombieHitSounds[2] = zombieHitSound3;
+			zombieHitSounds[3] = zombieHitSound4;
 		//song.play();
 		
 		//////////////////////
@@ -307,6 +317,20 @@
 			///////////////////////////////////////
 			/////////////ALL FUNCTIONS/////////////
 			///////////////////////////////////////
+			
+			var burp = function(){
+				if (!player.moving){
+					player.burpTicker++;
+					if (player.moving){
+						player.burpTicker = 0;
+					}
+					if (player.burpTicker >= 1200){
+						superBurp.play();
+						player.burpTicker = 0;
+					}
+				}
+			}
+			
 			var checkInFire = function(){
 				for(i in zombie){
 					if(weapon.hitX < zombie[i].x && weapon.hitX +100 > zombie[i].x && !player.dead){
@@ -928,9 +952,13 @@
 			//BottleHitCheck///
 			///////////////////
 			for(i in zombie){
-					if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead && !zombieHit){	
+					if(weapon.weaponXCoord +32 > zombie[i].x +60 && weapon.weaponXCoord +32 < zombie[i].x + 81 && weapon.weaponYCoord+ 32 >= zombie[i].y && shoot && !zombie[i].dead && !zombieHit){
+						let z = Math.floor((Math.random()*4));
+						if (z >= 4){
+							z = 3;
+						}
+						zombieHitSounds[z].play();
 						zombieHit = true;
-						zombieHitSound.play();
 						zombie[i].gotHit = true;
 						if(weaponChoice == 1){
 							zombie[i].lifes -= 2;
@@ -1023,7 +1051,7 @@
 				}
 			}
 
-			
+		burp();
 		zombieMove(1);
 		trackWeaponDirection();
 		
