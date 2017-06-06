@@ -206,7 +206,49 @@
 									armLeftImage.onload = function(){
 										armLeftReady = true;
 									}	
-									armLeftImage.src = "images/arm_sprite_left.png";	
+									armLeftImage.src = "images/arm_sprite_left.png";										
+									
+									var armCanReady = false;
+									var armCanImage = new Image();
+									armCanImage.onload = function(){
+										armCanReady = true;
+									}	
+									armCanImage.src = "images/arm_sprite_bier.png";										
+									
+									var armCanLeftReady = false;
+									var armCanLeftImage = new Image();
+									armCanLeftImage.onload = function(){
+										armLeftReady = true;
+									}	
+									armCanLeftImage.src = "images/arm_sprite_bier_left.png";	
+
+									var armBrownReady = false;
+									var armBrownImage = new Image();
+									armBrownImage.onload = function(){
+										armBrownReady = true;
+									}	
+									armBrownImage.src = "images/arm_sprite_brown.png";										
+									
+									var armBrownLeftReady = false;
+									var armBrownLeftImage = new Image();
+									armBrownLeftImage.onload = function(){
+										armBrownLeftReady = true;
+									}	
+									armBrownLeftImage.src = "images/arm_sprite_brown_left.png";									
+
+									var armFireReady = false;
+									var armFireImage = new Image();
+									armFireImage.onload = function(){
+										armFireReady = true;
+									}	
+									armFireImage.src = "images/arm_sprite_fire.png";										
+									
+									var armFireLeftReady = false;
+									var armFireLeftImage = new Image();
+									armFireLeftImage.onload = function(){
+										armFireLeftReady = true;
+									}	
+									armFireLeftImage.src = "images/arm_sprite_fire_left.png";									
 									
 									var shopBGReady = false;
 									var shopBGImage = new Image();
@@ -214,6 +256,20 @@
 										shopBGReady = true;
 									}
 									shopBGImage.src = "images/shop_bottles.png";
+									
+									var crunchReady = false;
+									var crunchImage = new Image();
+									crunchImage.onload = function(){
+										crunchReady = true;
+									}
+									crunchImage.src = "images/player_crunch.png";	
+									
+									var crunchLeftReady = false;
+									var crunchLeftImage = new Image();
+									crunchLeftImage.onload = function(){
+										crunchLeftReady = true;
+									}
+									crunchLeftImage.src = "images/player_crunch_left.png";
 
 
 		//////////////////////
@@ -300,7 +356,8 @@
 			moving:false,
 			onLeftWall:false,
 			onRightWall:false,
-			inAir:false
+			inAir:false,
+			crouching:false
 
 		}
 		var lifes = {
@@ -324,7 +381,7 @@
 			x:player.x+15,
 			y:player.y,
 			animating:false,
-			armCurrentImage: armImage
+			armCurrentImage: armCanImage
 		}
 			var keysDown = {};
 		
@@ -335,7 +392,7 @@
 			///////////////////////////////////////
 			var checkInFire = function(){
 				for(i in zombie){
-					if(weapon.hitX < zombie[i].x && weapon.hitX +100 > zombie[i].x && !player.dead){
+					if(weapon.hitX > zombie[i].x -100 && weapon.hitX < zombie[i].x +100 && !player.dead){
 						zombie[i].lifes -= 5;
 						if (zombie[i].lifes <= 0){
 							zombie[i].dead = true;
@@ -355,9 +412,9 @@
 			var openShop = function(){
 				shopIsOpen = true;
 				//canvas.setAttribute("style","-webkit-filter:blur(10px)");
-				ctx.drawImage(shopBGImage,50,50);
-			
-							
+				//while(shopIsOpen){
+					ctx.drawImage(shopBGImage,50,50);				
+				//}
 				
 			}
 			
@@ -429,8 +486,13 @@
 			var blink = function(){
 				player.ticker++;
 				if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
-					ctx.globalAlpha = 0.4;	
-					ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					ctx.globalAlpha = 0.4;
+					if(!player.crouching){
+						ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					}
+					else{
+						ctx.drawImage(player.playerCurrentImage,player.x,player.y+55);
+					}				
 					if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
 							if(player.spriteTicker % player.animSpeed == 0 ){
 									player.spriteX += 64;
@@ -444,7 +506,12 @@
 					ctx.globalAlpha = 1.0;
 				}
 				else{
-					ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					if(!player.crouching){
+						ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					}
+					else{
+						ctx.drawImage(player.playerCurrentImage,player.x, player.y+55);
+					}
 					if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
 							if(player.spriteTicker % player.animSpeed == 0 ){
 									player.spriteX += 64;
@@ -481,14 +548,16 @@
 			}
 			
 			var playerDie = function(){
-			if (player.playerCurrentImage == playerImage){
-				player.playerCurrentImage = playerDeadImage;
-				player.y = camera.y +canvas.height+150; 
-			}
-			else if (player.playerCurrentImage == playerLeftImage){
-				player.playerCurrentImage = playerDeadRightImage;
-				player.y = camera.y +canvas.height+150; 
-			}
+					player.dead = true;
+				if (player.playerCurrentImage == playerImage || player.playerCurrentImage == crunchImage){
+					player.y = camera.y +canvas.height+150; 				
+					player.playerCurrentImage = playerDeadImage;
+					
+				}
+				else if (player.playerCurrentImage == playerLeftImage || player.playerCurrentImage == crunchLeftImage){
+					player.y = camera.y +canvas.height+150; 		
+					player.playerCurrentImage = playerDeadRightImage;
+				}
 				
 			}
 				
@@ -589,10 +658,10 @@
 		}
 		
 		var trackWeaponDirection = function(){
-			if(!shoot && playerImage == player.playerCurrentImage){
+			if(!shoot && playerImage == player.playerCurrentImage || player.playerCurrentImage == crunchImage){
 				weapon.direction = true;
 			}
-			else if(!shoot && playerLeftImage == player.playerCurrentImage){
+			else if(!shoot && playerLeftImage == player.playerCurrentImage || player.playerCurrentImage == crunchLeftImage){
 				weapon.direction = false;
 			}
 						
@@ -663,7 +732,12 @@
 								}
 							}
 							if(armReady && !player.dead){
-								ctx.drawImage(arm.armCurrentImage,arm.spriteX,0,54,84,arm.x,arm.y,54,84);								
+								if(!player.crouching){
+									ctx.drawImage(arm.armCurrentImage,arm.spriteX,0,54,84,arm.x,arm.y,54,84);									
+								}
+								else{
+									ctx.drawImage(arm.armCurrentImage,arm.spriteX,0,54,84,arm.x,arm.y+ 55,54,84);								
+								}
 								if(arm.animating){
 									if(arm.ticker % 3 == 0){
 										arm.spriteX += 54;
@@ -672,7 +746,7 @@
 											arm.animating = false;
 										}
 									}
-								
+									
 								}
 								arm.ticker++;						
 							}
@@ -685,11 +759,8 @@
 										weapon.spriteX = 0;
 									}
 								}
-							}
-			
-							if(playerReady && !playerImmune){
-
-								
+							}			
+							if(playerReady && !playerImmune && !player.crouching && !player.dead){
 								ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
 												if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
 													if(player.spriteTicker % player.animSpeed == 0 ){
@@ -709,7 +780,10 @@
 							else if(playerReady && playerImmune && !player.dead){
 								blink();							
 							}
-							else if(playerReady){
+							if(playerReady && player.crouching && !playerImmune && !player.dead){
+								ctx.drawImage(player.playerCurrentImage, player.x,(player.y+55));
+							}
+							if(player.dead){
 								ctx.drawImage(player.playerCurrentImage,player.x,player.y);
 							}
 							
@@ -782,23 +856,26 @@
 						case 49:
 							weaponChoice = 1;
 							weapon.weaponSpriteImage = canSpriteImage;
-							weapon.weaponVelX = 8
+							weapon.weaponVelX = 8,
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armCanImage : arm.armCurrentImage = armCanLeftImage;
 							break;
 						case 50:
 							weaponChoice = 2;	
 							weapon.weaponSpriteImage = weaponGreenSpriteImage;
-							weapon.weaponVelX = 15
+							weapon.weaponVelX = 15;
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armImage : arm.armCurrentImage = armLeftImage;
 							break;
 						case 51:
 							weaponChoice = 3;
 							weapon.weaponSpriteImage = weaponBrownSpriteImage;
-							weapon.weaponVelX = 6
-
+							weapon.weaponVelX = 6;
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armBrownImage : arm.armCurrentImage = armBrownLeftImage;
 							break;
 						case 52:
 							weaponChoice = 4;
 							weapon.weaponSpriteImage = weaponFireSpriteImage;
 							weapon.weaponVelX = 3
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armFireImage : arm.armCurrentImage = armFireLeftImage;
 							break;
 						default:
 					}					
@@ -807,6 +884,10 @@
 				}, false);
 				
 				addEventListener("keyup", function(e){
+					if(e.keyCode == 83 && !player.dead){		
+						player.playerCurrentImage == crunchImage ? player.playerCurrentImage = playerImage : player.playerCurrentImage = playerLeftImage;
+						player.crouching = false;
+					}
 					delete keysDown[e.keyCode];
 					
 				});
@@ -818,62 +899,69 @@
 		///////////////////////////////////////////////
 		
 		var update = function(){
+
 			if(!player.dead){
-				if(wasd){
-					if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
+				
+					if(65 in keysDown && player.velX > -player.speed){	
+						player.crouching = false;						//KeyLEFT
 						player.velX--;
 						player.playerCurrentImage = playerLeftImage;
-						arm.armCurrentImage = armLeftImage;
+						switch(weaponChoice){
+							case 1: 
+								arm.armCurrentImage = armCanLeftImage;
+								break;
+							case 2:
+								arm.armCurrentImage = armLeftImage;
+								break;
+							case 3:
+								arm.armCurrentImage = armBrownLeftImage;
+								break;
+							case 4:
+								arm.armCurrentImage = armFireLeftImage;
+								break; 			
+						}
 					}
-					if(68 in keysDown && player.velX < player.speed){		//KeyRIGHT
+					if(68 in keysDown && player.velX < player.speed){
+						player.crouching = false;						//KeyRIGHT
 						player.velX++;
 						player.playerCurrentImage = playerImage;
-						arm.armCurrentImage = armImage;
+						switch(weaponChoice){
+							case 1: 
+								arm.armCurrentImage = armCanImage;
+								break;
+							case 2:
+								arm.armCurrentImage = armImage;
+								break;
+							case 3:
+								arm.armCurrentImage = armBrownImage;
+								break;
+							case 4:
+								arm.armCurrentImage = armFireImage;
+								break; 			
+						}
 
 					}
 					if (87 in keysDown && !player.jumping && player.velY <= 0){					//KeyUp
 						player.jumping = true; 
 						player.velY = -player.speed*4.6;
 					}
-					if(32 in keysDown && !playerImmune){
+					if(32 in keysDown /*&& !playerImmune*/){
 						if(!shoot){shot.play();arm.animating = true;}
 						if(arm.spriteX > 40){
 							shoot = true; 
-						}
-						
+						}	
 					}
-					if(69 in keysDown/* && interaction*/){
+					if(83 in keysDown && !(68 in keysDown ||65 in keysDown) && !player.dead){
+						player.crouching = true;
+						player.playerCurrentImage == playerImage || player.playerCurrentImage == crunchImage ? player.playerCurrentImage = crunchImage : player.playerCurrentImage = crunchLeftImage;
+					}				
+					if(69 in keysDown && interaction){
 						sessionStorage.setItem("coins", coinsCollected);
 						sessionStorage.setItem("lifes",lifes.amount);
 						sessionStorage.setItem("current",2);
 						window.location.reload();
 					}
-				}
-				else if(arr){
-					if(37 in keysDown && player.velX > -player.speed){		//KeyLEFT
-						player.velX--;
-						player.playerCurrentImage = playerLeftImage;
-						arm.armCurrentImage = armLeftImage;
-
-					}
-					if(39 in keysDown && player.velX < player.speed){		//KeyRIGHT
-						player.velX++;
-						player.playerCurrentImage = playerImage;
-						arm.armCurrentImage = armImage;
-
-					}
-					if (38 in keysDown && !player.jumping && player.velY <= 0){					//KeyUp
-						player.jumping = true; 
-						player.velY = -player.speed*4.6;
-					}
-					if(32 in keysDown && !playerImmune){
-						if(!shoot){shot.play();arm.animating = true;}
-						if(arm.spriteX > 40){
-							shoot = true; 
-						}
-						
-					}
-				}
+				
 			}
 						//////////////////////////////////
 						/////////BottleShooting///////////
@@ -917,7 +1005,12 @@
 				player.velY += gravity;
 				player.y += player.velY;
 				player.x += player.velX;
-				arm.armCurrentImage == armImage ? arm.x = player.x +15 : arm.x = player.x -10 ;		
+				if(arm.armCurrentImage == armImage || arm.armCurrentImage == armBrownImage || arm.armCurrentImage == armFireImage || arm.armCurrentImage == armCanImage){
+					arm.x = player.x +15;	
+				}
+				else{
+					arm.x = player.x -10 ;		
+				}	
 				arm.y = player.y;
 				if(player.velX < -.1 || player.velX >.1 ){
 					player.moving = true;
@@ -1032,6 +1125,8 @@
 						if (zombie[i].lifes <= 0){
 							zombie[i].dead = true;
 							zombieDie(i);
+							coinsCollected++;
+							sessionStorage.setItem("coins",coinsCollected);
 						}		
 					}
 			}
@@ -1109,7 +1204,7 @@
 				if(camera.x -(player.x + 64) < -(coins[i].x - camera.x) && camera.x - player.x > -(coins[i].x+43-camera.x)&&
 				player.y+playerImage.height > coins[i].y && player.y< coins[i].y + coinImage.height){
 					coinSound.play();
-					coinsCollected++;
+					coinsCollected+=3;
 					sessionStorage.setItem("coins", coinsCollected);
 					delete coins[i];
 				}

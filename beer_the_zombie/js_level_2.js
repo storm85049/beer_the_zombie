@@ -8,18 +8,19 @@
 		var gravity = 0.6,	
 			friction = 0.8,
 			weaponChoice = 1,
-			numOfZombies = 15;
-			coinsCollected = sessionStorage.getItem("coins");
+			numOfZombies = 15,
+			coinsCollected = Number(sessionStorage.getItem("coins"));
 		var shoot = false,
 			playerImmune = false,
 			arr = false,
 			wasd = true,
 			loaded = false,
 			zombieHit =false,
-			interaction = false;
-			shopIsOpen = false;
+			interaction = false,
+			shopIsOpen = false,
+			playerHit = false;
 		var loading = "loading",
-			loadingTicker = 0;
+			loadingTicker = 0,
 			dot = ".";
 
 		var zombie = new Array();
@@ -30,7 +31,7 @@
 									bgImage.onload = function(){
 										bgReady = true;
 									}	
-									bgImage.src = "images/level2/level2bg.jpg";
+									bgImage.src = "images/level2/level2bg.png";
 									var playerReady = false;
 									var playerImage = new Image();
 										playerImage.onload = function(){
@@ -66,8 +67,37 @@
 									zombieImage.onload = function(){
 										zombieReady = true;
 									}	
-									zombieImage.src = "images/level2/zombie_sprite_2.png";
+									zombieImage.src = "images/zombie_sprite.png";
 
+									var zombie2Ready = false;
+									var zombie2Image = new Image();
+									zombie2Image.onload = function(){
+										zombie2Ready = true;
+									}	
+									zombie2Image.src = "images/level2/zombie_sprite_2.png";
+									
+									var zombie2HitReady = false;
+									var zombie2HitImage = new Image();
+									zombie2HitImage.onload = function(){
+										zombie2HitReady = true;
+									}	
+									zombie2HitImage.src = "images/level2/zombie_sprite_2_hit.png";
+									
+									var zombie2LeftReady = false;
+									var zombie2LeftImage = new Image();
+									zombie2LeftImage.onload = function(){
+										zombie2LeftReady = true;
+									}	
+									zombie2LeftImage.src = "images/level2/zombie_sprite_2_left.png";
+
+									var zombie2LeftHitReady = false;
+									var zombie2LeftHitImage = new Image();
+									zombie2LeftHitImage.onload = function(){
+										zombie2LeftHitReady = true;
+									}	
+									zombie2LeftHitImage.src = "images/level2/zombie_sprite_2_left_hit.png";
+
+									
 									var zombieRightReady = false;
 									var zombieRightImage = new Image();
 									zombieRightImage.onload = function(){
@@ -206,7 +236,49 @@
 									armLeftImage.onload = function(){
 										armLeftReady = true;
 									}	
-									armLeftImage.src = "images/arm_sprite_left.png";	
+									armLeftImage.src = "images/arm_sprite_left.png";
+									
+									var armCanReady = false;
+									var armCanImage = new Image();
+									armCanImage.onload = function(){
+										armCanReady = true;
+									}	
+									armCanImage.src = "images/arm_sprite_bier.png";										
+									
+									var armCanLeftReady = false;
+									var armCanLeftImage = new Image();
+									armCanLeftImage.onload = function(){
+										armLeftReady = true;
+									}	
+									armCanLeftImage.src = "images/arm_sprite_bier_left.png";	
+
+									var armBrownReady = false;
+									var armBrownImage = new Image();
+									armBrownImage.onload = function(){
+										armBrownReady = true;
+									}	
+									armBrownImage.src = "images/arm_sprite_brown.png";										
+									
+									var armBrownLeftReady = false;
+									var armBrownLeftImage = new Image();
+									armBrownLeftImage.onload = function(){
+										armBrownLeftReady = true;
+									}	
+									armBrownLeftImage.src = "images/arm_sprite_brown_left.png";									
+
+									var armFireReady = false;
+									var armFireImage = new Image();
+									armFireImage.onload = function(){
+										armFireReady = true;
+									}	
+									armFireImage.src = "images/arm_sprite_fire.png";										
+									
+									var armFireLeftReady = false;
+									var armFireLeftImage = new Image();
+									armFireLeftImage.onload = function(){
+										armFireLeftReady = true;
+									}	
+									armFireLeftImage.src = "images/arm_sprite_fire_left.png";										
 									
 									var shopBGReady = false;
 									var shopBGImage = new Image();
@@ -222,6 +294,20 @@
 									}
 									laserImage.src = "images/level2/laser_image.png";
 
+																		var crunchReady = false;
+									var crunchImage = new Image();
+									crunchImage.onload = function(){
+										crunchReady = true;
+									}
+									crunchImage.src = "images/player_crunch.png";	
+									
+									var crunchLeftReady = false;
+									var crunchLeftImage = new Image();
+									crunchLeftImage.onload = function(){
+										crunchLeftReady = true;
+									}
+									crunchLeftImage.src = "images/player_crunch_left.png";
+
 		//////////////////////
 		////////SOUNDS////////
 		//////////////////////		
@@ -236,21 +322,19 @@
 		//////////////////////	
 		for(let i = 0; i < numOfZombies; i++){
 			zombie[i] = {		//x:Math.floor(Math.random()*canvas.width+canvas.width/2)
-								x: Math.floor(Math.random()*(4000) + 500), newSpawnX: Math.floor(Math.random()*(1000) + 1000), y:canvas.height/2,
-								dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
-								zombieCurrentImage: zombieImage,lifes:5, gotHit: false, blinkTicker:0, which: Math.floor((Math.random()*2)+1),
-								yWidth:null,yHeight:null
+								x: Math.floor(Math.random()*(4000) + 500), newSpawnX: Math.floor(Math.random()*(1000) + 1000), y:canvas.height/2 + 70,
+								dead:false,spriteX:0,ticker:0,animSpeed:null,isOnRight:false,
+								zombieCurrentImage: null,lifes:5, gotHit: false, blinkTicker:0, which: Math.floor((Math.random()*2)+1),
+								xWidth:null,yHeight:null,
 			}
 		}
-
 		var camera = {
 			x:0,
-			y:-270,	
+			y:0,	
 			camShift:3		//Fixer Wert, der den Background verschiebt, wenn man aus der "freien Bewegungszone herausgeht"
-
 		}
 		
-		var platformGround = new Array();
+		/*var platformGround = new Array();
 			platformGround[0] = {x:camera.x+300,y:250,initialY:250,platformImage:tonneImage,onLayerOne:false};
 			platformGround[1] = {x:camera.x+1200,y:250,initialY:250,platformImage:tonneImage,onLayerOne:false};
 			platformGround[2] = {x:camera.x+3000,y:250,initialY:250,platformImage:tonneImage,onLayerOne:false};
@@ -265,15 +349,70 @@
 			platformLevelOne[7] = {x:camera.x+3160,y:30,initialY:30,platformImage:markiseImage,onLayerTwo:false};
 			platformLevelOne[8] = {x:camera.x+3330,y:-155,initialY:-155,platformImage:markiseImage,onLayerTwo:false};
 			platformLevelOne[9] = {x:camera.x+2985,y:-155,initialY:-155,platformImage:markiseImage,onLayerTwo:false};
-			
+		*/	
 		var coins = new Array();
 		
-		for(i in platformLevelOne){
-				coins[i] = {x: platformLevelOne[i].x + +60, 
-							y: platformLevelOne[i].y -50,ticker:0, spriteX:0, initialY:platformLevelOne[i].y - 50};
+		for(let i = 0; i < 15; i++){
+				coins[i] = {x: Math.random()*(bgImage.width/2),
+							y:canvas.height - 80,ticker:0, spriteX:0, initialY:canvas.height - 80};
 			}
-
+		
+		var laser = new Array();
+		
+		for(i in zombie){
+			laser[i] = {
+				x:null,
+				y:null,
+				animating:false,
+				hitWall:false,
+				hitPlayer:false,
+				trigger:null,
+				ticker:null,
+			}
+			if(zombie[i].which == 2){
+				laser[i].trigger = Math.floor(Math.random()*200)+100;
+			}
+		}
+				
+		var calculateLaser = function(i){	
+			if(zombie[i].which == 2 && zombie[i].x >= 0 && zombie[i].x <= 920 && !player.dead){
+				if(!laser[i].animating){
+					laser[i].x = zombie[i].x +30;
+					laser[i].y = zombie[i].y + 10;
+				}
+				laser[i].ticker++;
+				if(laser[i].ticker >= laser[i].trigger){
+					laser[i].animating = true;	
+					laser[i].ticker = 0;
+					laser[i].trigger= Math.floor(Math.random()*200)+100;
+					//console.log(i + " got triggered");
+				}
+			}
 			
+		}	
+		
+		
+		var drawLaser = function(i){
+			if(laser[i].animating && !zombie[i].dead){
+				if(laser[i].x < 0 || laser[i].x + laserImage.width > canvas.width ){
+						laser[i].animating = false; 
+				}
+				ctx.drawImage(laserImage,laser[i].x, laser[i].y);
+				zombie[i].isOnRight ? laser[i].x -= 5 : laser[i].x += 5;
+				
+				if(laser[i].x < player.x+64 && laser[i].x > player.x && laser[i].y < player.y + playerImage.height && laser[i].y >= player.y && !playerImmune){
+						lifes.amount -= 1;
+						playerImmune = true;	
+						setTimeout(function(){playerImmune = false}, 2000);
+				}
+				if(lifes.amount == 0){
+							player.dead = true; 
+							playerDie();
+						}
+				
+			}
+		}
+		
 			
 					
 		var weapon = {
@@ -295,7 +434,7 @@
 		var player = {
 			speed:3,		//Maximale Geschwindigkeit des Players 
 			x:100,			
-			y:canvas.height/2,
+			y:canvas.height/2 + 70,
 			jumping:false,
 			velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verÃ¤ndert
 			velY:0,			//GLeiches wie fÃ¼r velX
@@ -308,12 +447,13 @@
 			moving:false,
 			onLeftWall:false,
 			onRightWall:false,
-			inAir:false
+			inAir:false,
+			crunching:false
 
 		}
 		var lifes = {
 			totalAmount: 3,
-			//amount: sessionStorage.getItem("lifes"),
+			//amount:sessionStorage.getItem("lifes"),
 			amount : 3,
 			ticker: 0,
 			animationFrame: 0,
@@ -333,7 +473,7 @@
 			x:player.x+15,
 			y:player.y,
 			animating:false,
-			armCurrentImage: armImage
+			armCurrentImage: armCanImage
 		}
 
 			var keysDown = {};
@@ -354,22 +494,23 @@
 					}
 				}
 			}	
-			var checkZombieType =function(){
+			var checkZombieType = function(){
 				for(i in zombie){
 					if(zombie[i].which == 1){
-						zombie[i].yWidth = 81;
+						zombie[i].animSpeed = 10;
+						zombie[i].zombieCurrentImage = zombieImage;
+						zombie[i].xWidth = 81;
 						zombie[i].yHeight = 164;
 					}
 					else{
-						zombie[i].yWidth = 86;
+						zombie[i].animSpeed = 14;
+						zombie[i].zombieCurrentImage = zombie2Image;
+						zombie[i].xWidth = 86;
 						zombie[i].yHeight = 167;
 					}
 				}	
 			}
-			var shootLaser = function(){
 
-				
-			}
 			var spawnZombieleft = function(){
 				for (i in zombie){
 					if(i % (numOfZombies/5) == 0){
@@ -388,18 +529,18 @@
 			
 			var zombieMove = function(speed){
 			for(i in zombie){
-				if(zombie[i].x < -500 && !zombie[i].dead && i % (numOfZombies/5) != 0){
+				if(zombie[i].x < -500 && !zombie[i].dead /*&& i % (numOfZombies/5) != 0*/){
 					zombie[i].x = zombie[i].newSpawnX;
 				}
 				if (!zombie[i].dead){
 					if(zombie[i].isOnRight){
 						if(!zombie[i].gotHit){
-							zombie[i].zombieCurrentImage = zombieImage;
-							zombie[i].x-=speed;
+							zombie[i].which == 1 ? zombie[i].zombieCurrentImage = zombieImage: zombie[i].zombieCurrentImage  = zombie2Image;
+							zombie[i].which == 1 ? zombie[i].x-=speed : zombie[i].x -= (speed-0.5);
 						}
 						else{
-							zombie[i].zombieCurrentImage = zombieSpriteHitImage
-							zombie[i].x+=speed;
+							zombie[i].which == 1 ? zombie[i].zombieCurrentImage = zombieSpriteHitImage: zombie[i].zombieCurrentImage = zombie2HitImage;
+							zombie[i].which == 1 ? zombie[i].x += speed : zombie[i].x += (speed-0.5);
 						}
 						
 						if (zombie[i].x+100<=player.x){
@@ -409,13 +550,12 @@
 
 					else if (!zombie[i].isOnRight){
 							if(!zombie[i].gotHit){								
-							zombie[i].x+=speed;
-							zombie[i].zombieCurrentImage = zombieRightImage;
+							zombie[i].which == 1 ? zombie[i].x +=speed : zombie[i].x += (speed-.5);
+							zombie[i].which == 1 ? zombie[i].zombieCurrentImage = zombieRightImage: zombie[i].zombieCurrentImage = zombie2LeftImage;
 						}
 						else{
-							console.log("now");
-							zombie[i].zombieCurrentImage = zombieSpriteRightHitImage ;
-							zombie[i].x-=speed;
+							zombie[i].which == 1 ? zombie[i].zombieCurrentImage = zombieSpriteRightHitImage: zombie[i].zombieCurrentImage = zombie2LeftHitImage;
+							zombie[i].which == 1 ? zombie[i].x-=speed : zombie[i].x -= (speed-.5);
 						}						
 						}
 						if (zombie[i].x-100>player.x){
@@ -432,18 +572,18 @@
 											}						
 											if (zombie[index].blinkTicker % 5 > 0 && zombie[index].blinkTicker % 5 < 3) {
 												ctx.globalAlpha = 0.4;	
-												ctx.drawImage(zombie[index].zombieCurrentImage, zombie[index].spriteX, 0,zombie[i].yWidth,zombie[i].xHeight,zombie[index].x,zombie[index].y,zombie[i].yWidth,zombie[i].xHeight);
+												ctx.drawImage(zombie[index].zombieCurrentImage, zombie[index].spriteX, 0,zombie[i].xWidth,zombie[i].yHeight,zombie[index].x,zombie[index].y,zombie[i].xWidth,zombie[i].yHeight);
 												ctx.globalAlpha = 1.0;
 											}												
 										else {
-											ctx.drawImage(zombie[index].zombieCurrentImage, zombie[index].spriteX, 0,zombie[i].yWidth,zombie[i].xHeight,zombie[index].x,zombie[index].y,zombie[i].yWidth,zombie[i].xHeight);
+											ctx.drawImage(zombie[index].zombieCurrentImage, zombie[index].spriteX, 0,zombie[i].xWidth,zombie[i].yHeight,zombie[index].x,zombie[index].y,zombie[i].xWidth,zombie[i].yHeight);
 												if(zombie[index].ticker % zombie[index].animSpeed == 0 ){
-														zombie[index].spriteX += zombie[i].yWidth;
+														zombie[index].spriteX += zombie[i].xWidth;
 											}
 										}
 											if(zombie[index].ticker % zombie[index].animSpeed == 0){
-														zombie[index].spriteX += zombie[i].yWidth;
-															if(zombie[index].spriteX > zombie[i].yWidth * 3){
+														zombie[index].spriteX += zombie[i].xWidth;
+															if(zombie[index].spriteX > zombie[i].xWidth * 3){
 																zombie[index].spriteX = 0;
 																}
 															}
@@ -454,8 +594,13 @@
 			var blink = function(){
 				player.ticker++;
 				if (player.ticker % 5 > 0 && player.ticker % 5 < 3) {
-					ctx.globalAlpha = 0.4;	
-					ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					ctx.globalAlpha = 0.4;
+					if(!player.crouching){
+						ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					}
+					else{
+						ctx.drawImage(player.playerCurrentImage,player.x,player.y);
+					}				
 					if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
 							if(player.spriteTicker % player.animSpeed == 0 ){
 									player.spriteX += 64;
@@ -469,7 +614,12 @@
 					ctx.globalAlpha = 1.0;
 				}
 				else{
-					ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					if(!player.crouching){
+						ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
+					}
+					else{
+						ctx.drawImage(player.playerCurrentImage,player.x, player.y);
+					}
 					if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
 							if(player.spriteTicker % player.animSpeed == 0 ){
 									player.spriteX += 64;
@@ -493,28 +643,29 @@
 					else{
 						zombie[index].zombieCurrentImage = zombieDeadRightImage;
 					}
-					if (checkOnPlatformGround(0)){
-						zombie[index].y = canvas.height/2+185;
+					/*if (checkOnPlatformGround(0)){
+						zombie[index].y = canvas.height/2+265;
 					}
 					else if (checkOnPlatformLevelOne(0)){
-						zombie[index].y= canvas.height-20;
+						zombie[index].y= canvas.height+60;
 					}
-					else{
-						zombie[index].y = canvas.height/2+130;
-					}
+					else{*/
+						zombie[index].y = canvas.height/2+210;
+					//}
 				
 			}
 			
 			var playerDie = function(){
-			if (player.playerCurrentImage == playerImage){
-				player.playerCurrentImage = playerDeadImage;
-				player.y = camera.y +canvas.height+150; 
-			}
-			else if (player.playerCurrentImage == playerLeftImage){
-				player.playerCurrentImage = playerDeadRightImage;
-				player.y = camera.y +canvas.height+150; 
-			}
-				
+					player.dead = true;
+				if (player.playerCurrentImage == playerImage || player.playerCurrentImage == crunchImage){
+					player.y = camera.y +canvas.height-80; 				
+					player.playerCurrentImage = playerDeadImage;
+					
+				}
+				else if (player.playerCurrentImage == playerLeftImage || player.playerCurrentImage == crunchLeftImage){
+					player.y = camera.y +canvas.height-80; 		
+					player.playerCurrentImage = playerDeadRightImage;
+				}	
 			}
 				
 			var resetWeapon = function(){
@@ -614,34 +765,33 @@
 		}
 		
 		var trackWeaponDirection = function(){
-			if(!shoot && playerImage == player.playerCurrentImage){
+			if(!shoot && playerImage == player.playerCurrentImage || player.playerCurrentImage == crunchImage){
 				weapon.direction = true;
 			}
-			else if(!shoot && playerLeftImage == player.playerCurrentImage){
+			else if(!shoot && playerLeftImage == player.playerCurrentImage || player.playerCurrentImage == crunchLeftImage){
 				weapon.direction = false;
-			}
-						
-				
+			}		
 		}
-			function checkOnPlatformGround(x){
+			/*function checkOnPlatformGround(x){
 				if(x==0){for (i in platformGround ){if(platformGround[i].onLayerOne){return true;}}}
 				else{for (i in platformGround ){if(platformGround[i].onLayerOne){return platformGround[i].y;}}}
 			}
 			function checkOnPlatformLevelOne(x){
 				if(x==0){for (i in platformLevelOne ){if(platformLevelOne[i].onLayerTwo){return true;}}}
 				else{for (i in platformLevelOne ){if(platformLevelOne[i].onLayerTwo){return platformLevelOne[i].y;}}}					
-			}
+			}*/
 		
 						//////////////////////////////////////////
 						////RENDER FUNCTION DRAWING ALL PICTURES//
 						//////////////////////////////////////////
 							var render = function(){
+													
 							if(loaded){
 							if(bgReady){
-								ctx.drawImage(bgImage,camera.x,camera.y);
+								ctx.drawImage(bgImage,camera.x,0);
 							}
 
-							if(tonneReady){
+							/*if(tonneReady){
 								for(i in platformGround){
 									ctx.drawImage(platformGround[i].platformImage,platformGround[i].x, platformGround[i].y);
 								}
@@ -650,8 +800,7 @@
 								for(i in platformLevelOne){
 									ctx.drawImage(platformLevelOne[i].platformImage,platformLevelOne[i].x, platformLevelOne[i].y);
 								}
-							}
-
+							}*/
 							if(zombieReady){
 								for(i in zombie){
 										if (zombie[i].dead){
@@ -659,10 +808,10 @@
 
 										}
 										else if (!zombie[i].dead && !zombie[i].gotHit){
-											ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].spriteX,0,zombie[i].yWidth,zombie[i].xHeight,zombie[i].x,zombie[i].y,zombie[i].yWidth,zombie[i].xHeight);
+											ctx.drawImage(zombie[i].zombieCurrentImage,zombie[i].spriteX,0,zombie[i].xWidth,zombie[i].yHeight,zombie[i].x,zombie[i].y,zombie[i].xWidth,zombie[i].yHeight);
 												if(zombie[i].ticker % zombie[i].animSpeed == 0){
-													zombie[i].spriteX += zombie[i].yWidth;
-													if(zombie[i].spriteX >zombie[i].yWidth * 3) {
+													zombie[i].spriteX += zombie[i].xWidth;
+													if(zombie[i].spriteX >zombie[i].xWidth * 3) {
 														zombie[i].spriteX = 0;
 													}
 												}
@@ -672,6 +821,9 @@
 											
 											zombieBlink(i);	//86 breit 167hoch
 										}
+										calculateLaser(i);
+										drawLaser(i);
+
 								}
 							}
 							if(coinReady){
@@ -688,7 +840,10 @@
 								}
 							}
 							if(armReady && !player.dead){
-								ctx.drawImage(arm.armCurrentImage,arm.spriteX,0,54,84,arm.x,arm.y,54,84);								
+						
+									ctx.drawImage(arm.armCurrentImage,arm.spriteX,0,54,84,arm.x,arm.y,54,84);									
+								
+
 								if(arm.animating){
 									if(arm.ticker % 3 == 0){
 										arm.spriteX += 54;
@@ -696,11 +851,11 @@
 											arm.spriteX = 0;
 											arm.animating = false;
 										}
-									}
-								
+									}	
 								}
 								arm.ticker++;						
 							}
+							
 							if(weaponSpriteReady && shoot ){
 								ctx.drawImage(weapon.weaponSpriteImage,weapon.spriteX,0,32,32,weapon.weaponXCoord,weapon.weaponYCoord,32,32);
 								weapon.ticker++;
@@ -712,9 +867,7 @@
 								}
 							}
 			
-							if(playerReady && !playerImmune){
-
-								
+							if(playerReady && !playerImmune && !player.crouching && !player.dead){
 								ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
 												if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
 													if(player.spriteTicker % player.animSpeed == 0 ){
@@ -725,20 +878,19 @@
 													}
 													player.spriteTicker++;
 												}
-											
-												else{player.spriteX = 0;}
-														
-										}
-										
-							
+												else{player.spriteX = 0;}			
+							}		
 							else if(playerReady && playerImmune && !player.dead){
 								blink();							
 							}
-							else if(playerReady){
+							if(playerReady && player.crouching && !playerImmune && !player.dead){
+								
+								ctx.drawImage(player.playerCurrentImage, player.x,player.y);
+							}
+							if(player.dead){
 								ctx.drawImage(player.playerCurrentImage,player.x,player.y);
 							}
 							
-
 							if(explosionReady && weaponChoice == 4 && (weapon.onGround || explosion.animating) && !player.dead ){
 										explosion.animating = true;
 										ctx.drawImage(explosionImage,explosion.spriteX,explosion.spriteY,200,200,weapon.hitX,weapon.hitY,200,200);
@@ -756,7 +908,7 @@
 										}
 									}
 
-							
+												
 							drawWeaponSelect();
 							animationLife();
 							drawLife();
@@ -765,7 +917,7 @@
 								ctx.beginPath();
 								ctx.font ="20px Helvetica";
 								ctx.fillStyle = "rgba(125,125,125,.9)";
-								ctx.fillText("press[E]  to enter",315,camera.y +270+ canvas.height/2 -50);
+								ctx.fillText("press[E]  to enter",315,200);
 								ctx.fillStyle = "rgba(0,0,0,0.3)";
 								interaction = true;
 							}
@@ -807,31 +959,41 @@
 						case 49:
 							weaponChoice = 1;
 							weapon.weaponSpriteImage = canSpriteImage;
-							weapon.weaponVelX = 8
+							weapon.weaponVelX = 8;
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armCanImage : arm.armCurrentImage = armCanLeftImage;
 							break;
 						case 50:
 							weaponChoice = 2;	
 							weapon.weaponSpriteImage = weaponGreenSpriteImage;
-							weapon.weaponVelX = 15
+							weapon.weaponVelX = 15;
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armImage : arm.armCurrentImage = armLeftImage;
 							break;
 						case 51:
 							weaponChoice = 3;
 							weapon.weaponSpriteImage = weaponBrownSpriteImage;
-							weapon.weaponVelX = 6
+							weapon.weaponVelX = 6;
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armBrownImage : arm.armCurrentImage = armBrownLeftImage;
 
 							break;
 						case 52:
 							weaponChoice = 4;
 							weapon.weaponSpriteImage = weaponFireSpriteImage;
-							weapon.weaponVelX = 3
+							weapon.weaponVelX = 3;
+							arm.armCurrentImage = armFireImage;
+							player.playerCurrentImage == playerImage ? arm.armCurrentImage = armFireImage : arm.armCurrentImage = armFireLeftImage;
 							break;
-						default:
+						
 					}					
 							
 					}
 				}, false);
 				
 				addEventListener("keyup", function(e){
+					if(e.keyCode == 83 && !player.dead){	
+						player.y = canvas.height/2 +70;
+						player.playerCurrentImage == crunchImage ? player.playerCurrentImage = playerImage : player.playerCurrentImage = playerLeftImage;
+						player.crouching = false;
+					}
 					delete keysDown[e.keyCode];
 					
 				});
@@ -843,29 +1005,61 @@
 		///////////////////////////////////////////////
 		
 		var update = function(){
+
 			if(!player.dead){
-				if(wasd){
-					if(65 in keysDown && player.velX > -player.speed){		//KeyLEFT
+					if(65 in keysDown && player.velX > -player.speed){	
+						player.crouching = false;							//KeyLEFT
 						player.velX--;
 						player.playerCurrentImage = playerLeftImage;
-						arm.armCurrentImage = armLeftImage;
+						switch(weaponChoice){
+							case 1: 
+								arm.armCurrentImage = armCanLeftImage;
+								break;
+							case 2:
+								arm.armCurrentImage = armLeftImage;
+								break;
+							case 3:
+								arm.armCurrentImage = armBrownLeftImage;
+								break;
+							case 4:
+								arm.armCurrentImage = armFireLeftImage;
+								break; 			
+						}
 					}
-					if(68 in keysDown && player.velX < player.speed){		//KeyRIGHT
+					if(68 in keysDown && player.velX < player.speed){	
+						player.crouching = false;							//KeyRIGHT
 						player.velX++;
 						player.playerCurrentImage = playerImage;
-						arm.armCurrentImage = armImage;
+						switch(weaponChoice){
+							case 1: 
+								arm.armCurrentImage = armCanImage;
+								break;
+							case 2:
+								arm.armCurrentImage = armImage;
+								break;
+							case 3:
+								arm.armCurrentImage = armBrownImage;
+								break;
+							case 4:
+								arm.armCurrentImage = armFireImage;
+								break; 			
+						}
 
 					}
 					if (87 in keysDown && !player.jumping && player.velY <= 0){					//KeyUp
 						player.jumping = true; 
 						player.velY = -player.speed*4.6;
 					}
-					if(32 in keysDown && !playerImmune){
+					if(32 in keysDown /*&& !playerImmune*/){
 						if(!shoot){shot.play();arm.animating = true;}
 						if(arm.spriteX > 40){
 							shoot = true; 
-						}
-						
+						}	
+					}
+					if(83 in keysDown && !(68 in keysDown ||65 in keysDown ||87 in keysDown) && !player.dead){
+						player.y = canvas.height/2+125;
+						player.crouching = true;
+						player.playerCurrentImage == playerImage || player.playerCurrentImage == crunchImage ? player.playerCurrentImage = crunchImage : player.playerCurrentImage = crunchLeftImage;
 					}
 					if(69 in keysDown && interaction){
 						sessionStorage.setItem("coins", coinsCollected);
@@ -874,32 +1068,6 @@
 						window.location.reload();
 					}
 				}
-				else if(arr){
-					if(37 in keysDown && player.velX > -player.speed){		//KeyLEFT
-						player.velX--;
-						player.playerCurrentImage = playerLeftImage;
-						arm.armCurrentImage = armLeftImage;
-
-					}
-					if(39 in keysDown && player.velX < player.speed){		//KeyRIGHT
-						player.velX++;
-						player.playerCurrentImage = playerImage;
-						arm.armCurrentImage = armImage;
-
-					}
-					if (38 in keysDown && !player.jumping && player.velY <= 0){					//KeyUp
-						player.jumping = true; 
-						player.velY = -player.speed*4.6;
-					}
-					if(32 in keysDown && !playerImmune){
-						if(!shoot){shot.play();arm.animating = true;}
-						if(arm.spriteX > 40){
-							shoot = true; 
-						}
-						
-					}
-				}
-			}
 						//////////////////////////////////
 						/////////BottleShooting///////////
 						//////////////////////////////////
@@ -942,7 +1110,12 @@
 				player.velY += gravity;
 				player.y += player.velY;
 				player.x += player.velX;
-				arm.armCurrentImage == armImage ? arm.x = player.x +15 : arm.x = player.x -10 ;		
+				if(arm.armCurrentImage == armImage || arm.armCurrentImage == armBrownImage || arm.armCurrentImage == armFireImage || arm.armCurrentImage == armCanImage){
+					arm.x = player.x +15;	
+				}
+				else{
+					arm.x = player.x -10 ;		
+				}	
 				arm.y = player.y;
 				if(player.velX < -.1 || player.velX >.1 ){
 					player.moving = true;
@@ -964,8 +1137,9 @@
 										weapon.weaponXCoord += camera.camShift;
 									}
 									for(i in zombie){zombie[i].x += camera.camShift;}
-									for (i in platformGround){platformGround[i].x += camera.camShift;}
-									for(i in platformLevelOne){platformLevelOne[i].x += camera.camShift;}
+									for(i in laser){laser[i].x += camera.camShift;}
+									//for (i in platformGround){platformGround[i].x += camera.camShift;}
+									//for(i in platformLevelOne){platformLevelOne[i].x += camera.camShift;}
 									for(i in coins){coins[i].x += camera.camShift;}
 									weapon.hitX += camera.camShift;
 									
@@ -988,9 +1162,10 @@
 									if(!player.moving){
 										weapon.weaponXCoord -= camera.camShift;
 									}
+									for(i in laser){laser[i].x -= camera.camShift;}
 									for(i in zombie){zombie[i].x -= camera.camShift;}
-									for (i in platformGround){platformGround[i].x -= camera.camShift;}
-									for(i in platformLevelOne){platformLevelOne[i].x -= camera.camShift;}
+									//for (i in platformGround){platformGround[i].x -= camera.camShift;}
+									//for(i in platformLevelOne){platformLevelOne[i].x -= camera.camShift;}
 									for(i in coins){coins[i].x -= camera.camShift;}
 									weapon.hitX -= camera.camShift;
 								}
@@ -1003,22 +1178,7 @@
 									}
 							}
 							else{player.onRightWall = false;}
-							if(player.jumping || (!checkOnPlatformGround() && !checkOnPlatformLevelOne() &&!(player.y > canvas.height/2))){	//Kamera Bewegung Y					
-										camera.y = (-270-player.y)/2; 
-										weapon.hitY = 270 + weapon.hitYfirst + camera.y;
-										for (i in platformGround){platformGround[i].y = 270 + platformGround[i].initialY + camera.y;}
-										for(i in platformLevelOne){platformLevelOne[i].y = 270 + platformLevelOne[i].initialY + camera.y;}
-										for(i in coins){coins[i].y = (270+coins[i].initialY+camera.y);}
-										for(i in zombie){
-											if(!zombie[i].dead){
-												zombie[i].y = 270+ canvas.height/2 + camera.y ;
-											}	
-											else{
-												zombie[i].y = 270+ canvas.height/2 + camera.y + 125;
-											}
-												
-										}
-							}
+					
 			}
 
 					////////////////////////////////////////
@@ -1057,13 +1217,15 @@
 						if (zombie[i].lifes <= 0){
 							zombie[i].dead = true;
 							zombieDie(i);
+							coinsCollected++;
+							sessionStorage.setItem("coins",coinsCollected);
 						}		
 					}
 			}
 			////////////////////////////
 			////player in y pos check///
 			////////////////////////////
-			if(checkOnPlatformGround(0) &&!player.dead){
+			/*if(checkOnPlatformGround(0) &&!player.dead){
 				if(player.y +playerImage.height>= checkOnPlatformGround(1)+20){
 					player.y = checkOnPlatformGround(1)-playerImage.height+20;
 					player.jumping = false;
@@ -1079,16 +1241,21 @@
 					}
 				
 			}
-			else if(player.y >= canvas.height/2 &&!player.dead){
-				player.y = canvas.height/2;
+			else */if(player.y >= canvas.height/2 +70 &&!player.dead && !player.crouching){
+				player.y = canvas.height/2 +70;
 				player.jumping = false;
 				player.velY = 0;
+			}
+			else if(player.y >= canvas.height/2 +70 &&!player.dead && player.crouching){
+				player.y = canvas.height/2 +125;
+				player.jumping = false;
+				player.velY = 0;			
 			}
 		
 			////////////////////////////
 			//Weapon Ground Hit Check///
 			////////////////////////////
-		if(weapon.weaponYCoord + 32> camera.y +canvas.height+180){	
+		if(weapon.weaponYCoord + 32>canvas.height-20){	
 				weapon.hitX = weapon.weaponXCoord -  80;
 				weapon.hitY = weapon.weaponYCoord - 100;
 				weapon.hitYfirst = weapon.hitY;
@@ -1104,7 +1271,7 @@
 			else{weapon.onGround = false;}
 			
 			//First Platform Check
-			for(i in platformGround){
+			/*for(i in platformGround){
 					if(camera.x - (player.x+64) < -(platformGround[i].x +40 - camera.x) && camera.x - player.x >-(platformGround[i].x + 
 					platformGround[i].platformImage.width - 20 -camera.x) && player.y+playerImage.height > platformGround[i].y && 
 					player.y+playerImage.height < platformGround[i].y +30 && player.velY > 0){
@@ -1127,15 +1294,16 @@
 				camera.x - player.x > -(platformLevelOne[i].x +markiseImage.width - 30 -camera.x))){
 					platformLevelOne[i].onLayerTwo = false;
 				}		
-			}
+			}*/
 			
 			/*coinHitCheck*/
 			for(i in coins){
 				if(camera.x -(player.x + 64) < -(coins[i].x - camera.x) && camera.x - player.x > -(coins[i].x+43-camera.x)&&
 				player.y+playerImage.height > coins[i].y && player.y< coins[i].y + coinImage.height){
 					coinSound.play();
-					coinsCollected++;
-					sessionStorage.setItem("coins", coinsCollected);
+					coinsCollected += 3;
+					//console.log(typeof coinsCollected);
+					sessionStorage.setItem("coins", Number(coinsCollected));
 					delete coins[i];
 				}
 			}
@@ -1144,7 +1312,6 @@
 			
 		zombieMove(1);
 		trackWeaponDirection();
-		shootLaser();
 		}
 		
 		////////////////////////////
