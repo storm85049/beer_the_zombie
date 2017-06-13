@@ -405,15 +405,17 @@
 			///////////////////////////////////////
 			var startAnim = function(){
 				if(startText){
+					ctx.textAlign = "center";
 					let text = ["*BURP*", "What!?", "Ah?", "I´m too drunk...", "What the hell is going on?", "I´ll ask these people if they know something"];
 					let textBoxHeight = 100;
 					ctx.globalAlpha = 1;
 					ctx.fillStyle = "grey";
 					ctx.drawImage(textBoxImage,50, 350);
 					ctx.fill();
+					ctx.font = "12px Viner Hand ITC";
+					ctx.fillText("Press the Space bar to continue...", 750,455)
 					ctx.font = "35px Viner Hand ITC";
-					ctx.fillStyle = "white";
-					ctx.textAlign = "center";
+					ctx.fillStyle = "white";	
 					ctx.fillText(text[textCounter], canvas.width/2, 425);
 					textAnimationTicker += 1;
 					if (textAnimationTicker <= textBoxHeight){
