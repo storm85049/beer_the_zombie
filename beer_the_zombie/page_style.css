@@ -70,3 +70,7 @@ body{
 	overflow-y:hidden;
 
 }
+@font-face {
+    font-family: 'Viner Hand';
+    src: "/Fonts/Viner Hand ITC";
+}

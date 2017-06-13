@@ -8,16 +8,22 @@
 		var gravity = 0.6,	
 			friction = 0.8,
 			weaponChoice = 1,
-			numOfZombies = 15;
-			coinsCollected = 0;
+			numOfZombies = 15,
+			coinsCollected = 0,
+			textAnimationTicker = 0,
+			textCounter = 0;
 		var shoot = false,
 			playerImmune = false,
 			arr = false,
 			wasd = true,
 			loaded = false,
 			zombieHit =false,
-			interaction = false;
-			shopIsOpen = false;
+			interaction = false,
+			shopIsOpen = false,
+			startAnimation = true,
+			startText = true,
+			nextText = false,
+			canPressNext = false;
 		var loading = "loading",
 			loadingTicker = 0;
 			dot = ".";
@@ -271,6 +277,13 @@
 									}
 									crunchLeftImage.src = "images/player_crunch_left.png";
 
+									var textBoxReady = false;
+									var textBoxImage = new Image();
+									textBoxImage.onload = function(){
+										textBoxImageReady = true;
+									}
+									textBoxImage.src = "images/text.png";
+
 
 		//////////////////////
 		////////SOUNDS////////
@@ -286,7 +299,7 @@
 		//////////////////////	
 		for(let i = 0; i < numOfZombies; i++){
 			zombie[i] = {		//x:Math.floor(Math.random()*canvas.width+canvas.width/2)
-								x: Math.floor(Math.random()*(4000) + 500), newSpawnX: Math.floor(Math.random()*(1000) + 1000), y:canvas.height/2,
+								x: Math.floor(Math.random()*(4000) + 900), newSpawnX: Math.floor(Math.random()*(1000) + 1000), y:canvas.height/2,
 								dead:false,spriteX:0,ticker:0,animSpeed:10,isOnRight:false,
 								zombieCurrentImage: zombieImage,lifes:5, gotHit: false, blinkTicker:0
 			}
@@ -342,8 +355,8 @@
 		}
 		var player = {
 			speed:3,		//Maximale Geschwindigkeit des Players 
-			x:100,			
-			y:canvas.height/2,
+			x:550,			
+			y: 75, //canvas.height/2,
 			jumping:false,
 			velX:0,			//aktueller Geschwindigkeitswert -> wird stetig in der Update Funktion verÃ¤ndert
 			velY:0,			//GLeiches wie fÃ¼r velX
@@ -390,6 +403,59 @@
 			///////////////////////////////////////
 			/////////////ALL FUNCTIONS/////////////
 			///////////////////////////////////////
+			var startAnim = function(){
+				if(startText){
+					let text = ["*BURP*", "What!?", "Ah?", "I´m too drunk...", "What the hell is going on?", "I´ll ask these people if they know something"];
+					let textBoxHeight = 100;
+					ctx.globalAlpha = 1;
+					ctx.fillStyle = "grey";
+					ctx.drawImage(textBoxImage,50, 350);
+					ctx.fill();
+					ctx.font = "35px Viner Hand ITC";
+					ctx.fillStyle = "white";
+					ctx.textAlign = "center";
+					ctx.fillText(text[textCounter], canvas.width/2, 425);
+					textAnimationTicker += 1;
+					if (textAnimationTicker <= textBoxHeight){
+						ctx.globalAlpha = 1;
+						ctx.drawImage(textBoxImage, 0, 15, 810, 100, 50, 365 + textAnimationTicker, 810, textBoxHeight - textAnimationTicker); 
+					}
+					if (textAnimationTicker % textBoxHeight == 0){
+						canPressNext = true;
+					}
+					if(nextText){
+						textCounter ++;
+						if(textCounter == text.length){
+							startText = false;
+						}
+						textAnimationTicker = 0;
+						nextText = false;
+					}
+				}
+				else{
+					let moveSpeedX = -1;
+					let moveSpeedY = 2;
+					player.playerCurrentImage = playerLeftImage;
+					if (player.y >= canvas.height/2 && player.x > 100){
+						moveSpeedX = 2;
+						arm.x = player.x - 10;
+						player.x -= moveSpeedX;
+						arm.armCurrentImage = armCanLeftImage;
+					}
+					else if(player.x <= 100){
+						startAnimation = false;
+						player.playerCurrentImage = playerImage;
+						arm.armCurrentImage = armCanImage;
+					}
+					else{
+						arm.armCurrentImage = armCanLeftImage;
+						player.y += moveSpeedY;
+						player.x += moveSpeedX;
+						arm.x = player.x - 10;
+						arm.y = player.y;
+				 }
+				}
+			}
 			var checkInFire = function(){
 				for(i in zombie){
 					if(weapon.hitX > zombie[i].x -100 && weapon.hitX < zombie[i].x +100 && !player.dead){
@@ -501,6 +567,7 @@
 												}
 											}
 									player.spriteTicker++;
+	
 								}								
 					else{player.spriteX = 0;}
 					ctx.globalAlpha = 1.0;
@@ -739,7 +806,7 @@
 									ctx.drawImage(arm.armCurrentImage,arm.spriteX,0,54,84,arm.x,arm.y+ 55,54,84);								
 								}
 								if(arm.animating){
-									if(arm.ticker % 3 == 0){
+										if(arm.ticker % 3 == 0){
 										arm.spriteX += 54;
 										if (arm.spriteX > 216){
 											arm.spriteX = 0;
@@ -762,7 +829,7 @@
 							}			
 							if(playerReady && !playerImmune && !player.crouching && !player.dead){
 								ctx.drawImage(player.playerCurrentImage,player.spriteX,0,64,164,player.x,player.y,64,164);
-												if((player.moving ||player.onLeftWall || player.onRightWall) && !player.inAir){
+												if((player.moving ||player.onLeftWall || player.onRightWall || startAnimation) && !player.inAir){
 													if(player.spriteTicker % player.animSpeed == 0 ){
 														player.spriteX += 64;
 														if(player.spriteX >192){
@@ -851,6 +918,10 @@
 							openShop();
 						}
 					}
+					if (32 in keysDown && startAnimation && !nextText && canPressNext){
+						nextText = true;
+						canPressNext = false;
+					}
 					if(!shoot){
 					switch(e.which){
 						case 49:
@@ -900,7 +971,7 @@
 		
 		var update = function(){
 
-			if(!player.dead){
+			if(!player.dead && !startAnimation){
 				
 					if(65 in keysDown && player.velX > -player.speed){	
 						player.crouching = false;						//KeyLEFT
@@ -1000,7 +1071,7 @@
 						}
 					
 						
-			if(!player.dead){
+			if(!player.dead && !startAnimation){
 				player.velX*=friction;			
 				player.velY += gravity;
 				player.y += player.velY;
@@ -1063,7 +1134,7 @@
 									weapon.hitX -= camera.camShift;
 								}
 							}
-							else if (player.x > 350){					// Right Wall Clamping
+							else if (player.x > 350 && !startAnimation){					// Right Wall Clamping
 									camera.x = -5000 + canvas.width;
 									if(player.x >= 622){
 										player.velX = 0;
@@ -1211,8 +1282,10 @@
 			}
 
 
-			
-		zombieMove(1);
+		if(!startAnimation){
+			zombieMove(1);
+		}	
+		
 		trackWeaponDirection();
 		}
 		
@@ -1227,7 +1300,12 @@
 		if(!shopIsOpen){
 			update(); 
 			render();
-		}	
+		}
+		if(startAnimation){
+			startAnim();
+		}
+		
+		
 		requestAnimationFrame(main);
 	}
 	spawnZombieleft();
